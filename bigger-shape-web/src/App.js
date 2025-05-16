@@ -1,8 +1,9 @@
-import logo from './logo.svg';
-import './App.css';
-import LoginPage from './LoginPage';
+import logo from "./logo.svg";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import "./App.css";
+import LoginPage from "./LoginPage";
 
-function App() {
+function Template() {
   return (
     <div className="App">
       <header className="App-header">
@@ -20,6 +21,19 @@ function App() {
         </a>
       </header>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<Template />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 
