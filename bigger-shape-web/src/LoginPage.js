@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
 const inputClass =
-  "w-full rounded px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
+  "pl-12 w-full rounded px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
 
 const handleSubmit = () => {};
 
@@ -10,6 +10,9 @@ const LoginPage = () => {
   useEffect(() => {
     document.title = "Log Into SHAPE";
   }, []);
+  // Things to make it look better
+  // interactive hovers or on focus for textboxes
+  // Custom error visuals
   return (
     <>
       <video
@@ -25,7 +28,7 @@ const LoginPage = () => {
       <div className="h-screen flex items-center justify-end pr-16">
         <div
           className="
-            bg-blue-300
+            bg-gradient-to-br from-blue-200 to-blue-500
             rounded-lg
             p-[2vh] sm:p-[3vh] md:p-[4vh]
             text-black
@@ -38,15 +41,24 @@ const LoginPage = () => {
         >
           <h1 className="text-xl font-bold text-center">Log Into SHAPE</h1>
           <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
-            <label htmlFor="email">Email</label>
-            <input type="email" id="email" className={inputClass} required />
-            <label htmlFor="password">Password</label>
-            <input
+            <Input
+              type="email"
+              id="email"
+              labelText="Email"
+              imagePath="/mail.jpg"
+              width="5"
+              height="4"
+              altText="Mail"
+            />
+            <Input
               type="password"
               id="password"
-              className={inputClass}
-              required
-            ></input>
+              labelText="Password"
+              imagePath="/lock.png"
+              width="5"
+              height="5"
+              altText="Lock"
+            />
             <button
               type="submit"
               className="
@@ -96,6 +108,25 @@ const LoginPage = () => {
             <span>Forgot password?</span>
           </div>
         </div>
+      </div>
+    </>
+  );
+};
+
+const Input = ({ type, id, labelText, imagePath, width, height, altText }) => {
+  return (
+    <>
+      <label htmlFor={type}>{labelText}</label>
+      <div className="relative">
+        <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+          <img
+            src={imagePath}
+            alt={altText}
+            className={`w-${width} h-${height}`}
+          />
+          <div className="h-10 w-0.5 bg-gray-300 ml-2" />
+        </span>
+        <input type={type} id={id} className={inputClass} required />
       </div>
     </>
   );
