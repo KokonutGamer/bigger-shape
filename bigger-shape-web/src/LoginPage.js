@@ -5,6 +5,8 @@ const inputClass =
 
 const handleSubmit = () => {};
 
+const handleGoogleLogin = () => {};
+
 const LoginPage = () => {
   //   If user is already logged in, redirect them to another page
   useEffect(() => {
@@ -25,7 +27,7 @@ const LoginPage = () => {
         <source src="/Seattle.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-      <div className="h-screen flex items-center justify-end pr-16">
+      <div className="h-screen flex items-center justify-end pr-0 sm:pr-16">
         <div
           className="
             bg-gradient-to-br from-blue-200 to-blue-500
@@ -59,48 +61,26 @@ const LoginPage = () => {
               height="5"
               altText="Lock"
             />
-            <button
+            <Button
               type="submit"
-              className="
-            bg-green-600
-            hover:bg-green-700
-            text-white
-            font-semibold
-            py-2
-            px-6
-            rounded transition
-            duration-300
-            "
-            >
-              Sign In
-            </button>
+              color="green"
+              text="Sign In"
+              onClick={handleSubmit}
+            />
           </form>
           <div className="flex items-center my-4">
             <hr className="flex-grow border-t border-black" />
             <span className="mx-4 text-black">OR</span>
             <hr className="flex-grow border-t border-black" />
           </div>
-          <button
-            type="submit"
-            className="
-            bg-blue-600
-            hover:bg-blue-700
-            text-white
-            font-semibold
-            py-2
-            px-6
-            rounded transition
-            duration-300
-            flex items-center justify-center space-x-2
-            "
-          >
-            <img
-              src="/google-logo.png"
-              alt="Google logo"
-              className="w-5 h-5"
-            ></img>
-            <span className="text-center">Log in with Google</span>
-          </button>
+          <Button
+            type="button"
+            color="blue"
+            onClick={handleGoogleLogin}
+            text="Log in with Google"
+            imagePath="/google-logo.png"
+            altText="Google logo"
+          />
           <div className="flex justify-between text-sm">
             <a href="/signup" className="text-blue-600 underline">
               Don't have an account?
@@ -129,6 +109,28 @@ const Input = ({ type, id, labelText, imagePath, width, height, altText }) => {
         <input type={type} id={id} className={inputClass} required />
       </div>
     </>
+  );
+};
+
+const Button = ({ type, color, onClick, text, imagePath, altText }) => {
+  return (
+    <button
+      type={type}
+      className={`bg-${color}-600
+            hover:bg-${color}-700
+            text-white
+            font-semibold
+            py-2
+            px-6
+            rounded transition
+            duration-300
+            flex items-center justify-center space-x-2
+            `}
+      onClick={onClick}
+    >
+      {imagePath && <img src={imagePath} alt={altText} className="w-5 h-5" />}
+      <span className="text-center">{text}</span>
+    </button>
   );
 };
 
