@@ -17,33 +17,33 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "User")
+@Table(name = "\"User\"")
 public class User {
 
-  @Id
-  @GeneratedValue(strategy=GenerationType.UUID)
-  @Column(name = "id", columnDefinition="uuid")
-  private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", columnDefinition = "uuid")
+    private UUID id;
 
-  @Column(name = "role")
-  private String role;
+    @Column(name = "role")
+    private String role;
 
-  @Column(name = "email", unique = true)
-  private String email;
+    @Column(name = "email", unique = true)
+    private String email;
 
-  @Column(name = "phone", unique = true)
-  private String phone;
+    @Column(name = "phone", unique = true)
+    private String phone;
 
-  @Column(name = "encrypted_password")
-  private String password;
+    @Column(name = "encrypted_password")
+    private String password;
 
-  @Column(name = "created_at")
-  private OffsetDateTime createdAt;
+    @Column(name = "created_at")
+    private OffsetDateTime createdAt;
 
-  @Column(name = "is_sso_user")
-  private boolean isSsoUser;
+    @Column(name = "is_sso_user")
+    private boolean isSsoUser;
 
-  @Column(name = "is_anonymous")
-  private boolean isAnonymous;
+    @Column(name = "is_anonymous")
+    private boolean isAnonymous;
 
 }
