@@ -7,30 +7,23 @@ interface CardContainerProps {
   children?: ReactNode;
 }
 
-/*
-            // <div
-            // className="
-            //     bg-gradient-to-br from-blue-200 to-blue-500
-            //     rounded-lg
-            //     p-[3vh] sm:p-[4vh] md:p-[5vh]
-            //     min-w-[25rem]
-            //     flex flex-col items-stretch justify-center space-y-2
-            //     "
-            // >
-*/
-
 const CardContainer: React.FC<CardContainerProps> = ({
   width,
   height,
   children,
 }) => {
+  const minWidth = `min-w-[${width}rem]`;
+  const minHeight = `p-[${height - 2}vh] sm:p-[${
+    height - 1
+  }vh] md:p-[${height}vh]`;
+
   return (
     <div
       className={`
         bg-gradient-to-br from-blue-200 to-blue-500
         rounded-lg
-        p-[${height - 2}vh] sm:p-[${height - 1}vh] md:p-[${height}vh]
-        min-w-[${width}rem]
+        ${minHeight}
+        ${minWidth}
         flex flex-col items-stretch justify-center space-y-2
         `}
     >
