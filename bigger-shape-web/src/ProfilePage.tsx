@@ -1,39 +1,63 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import CardContainer from "./CardContainer";
+import Button from "./Button";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
+  const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
   //   If user is not yet logged in, redirect them to login page
   useEffect(() => {
     document.title = "Dashboard";
   }, []);
 
-  const numberOfSubmissions = 5;
-  //https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fagentestudio.com%2Fuploads%2Fckeditor%2Fpictures%2F1568%2Fcontent_user-profile-design-15.jpg&f=1&nofb=1&ipt=b1360a8ec1330fbb2ae041ed7258c86141981fd4d71dfd87db8598d39f8eecaa
   const cards = [];
-  for (let i = 1; i <= numberOfSubmissions; i++) {
+  if (numberOfSubmissions === 0) {
     cards.push(
       <CardContainer
         width={5}
         height={5}
         fromColor="gray-100"
         toColor="gray-100"
-        className="flex flex-row space-x-4 pt-2 
-            hover:shadow-md hover:scale-110 transition-all duration-300"
+        className="flex flex-row space-x-4"
       >
-        <p>{`Questionnaire Submission #${i}`}</p>
+        <p>No submissions yet!</p>
       </CardContainer>
     );
+  } else {
+    for (let i = 1; i <= numberOfSubmissions; i++) {
+      cards.push(
+        <CardContainer
+          width={5}
+          height={5}
+          fromColor="gray-100"
+          toColor="gray-100"
+          className="flex flex-row space-x-4
+            hover:shadow-md hover:scale-110 transition-all duration-300"
+        >
+          <p>{`Questionnaire Submission #${i}`}</p>
+        </CardContainer>
+      );
+    }
   }
+
+  const handleTakeQuestionnaire = () => {
+    navigate("/survey");
+  };
 
   return (
     <>
-      <div className="fixed bg-gradient-to-br from-blue-800 to-blue-900 top-0 left-0 w-full h-full object-cover -z-10"></div>
+      <div
+        className="fixed 
+            bg-gradient-to-br from-blue-100 to-blue-200
+            top-0 left-0 w-full h-full object-cover -z-10"
+      ></div>
       <CardContainer
         width={5}
         height={5}
         fromColor="gray-100"
         toColor="gray-100"
-        className="flex flex-row space-x-4"
+        className="space-x-4"
       >
         <CardContainer
           width={5}
@@ -50,6 +74,12 @@ const ProfilePage = () => {
           ></img>
           <p>Welcome John Smith</p>
           <p>Email: jsmith@sample.com</p>
+          <Button
+            type="button"
+            color="green"
+            text="Take Questionnaire"
+            onClick={handleTakeQuestionnaire}
+          ></Button>
         </CardContainer>
         <CardContainer
           width={5}
