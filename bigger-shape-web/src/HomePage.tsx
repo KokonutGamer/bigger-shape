@@ -8,6 +8,8 @@ function HomePage(){
                 `
                     body {
                         background-color: #bfdbfe;
+                        height: 100vh;
+                        width: 100vw;
                     }
                     * {
                         padding: 0;
@@ -26,9 +28,9 @@ function HomePage(){
                 <p className="text-5xl font-bold text-center mt-[10vh] text-black">Welcome to SHAPE</p>
                 <p className="text-center mt-[1vh] mb-[5vh] text-black">Seattle Homeless Aid & Prevention Effort
                 </p>
-                <div className="flex items-center justify-around w-[100%] mt-[5vh]">
+                <div className="flex items-center justify-around w-full mt-[5vh] flex-wrap gap-4">
                     <div className={boxStyle}>
-                        <p className="text-left mt-[1vh] text-black">
+                        <p className="text-left mt-[1vh] text-black text-[clamp(0.75rem,1.5vw,1.5rem)]">
                             Over <strong>16,000</strong> Seattle individuals experienced
                             homelessness in 2024. This figure has increased compared to 2022. Our site aims to act as an early warning sign for individuals who may be
                             at risk in the future, as well as providing resources for those
@@ -51,12 +53,19 @@ function HomePage(){
 
                         </div>
                     </div>
-                    <div className={boxStyle}>
+                    <div className={`${boxStyle} flex items-center justify-center overflow-hidden`}>
                         <a href="https://www.seattletimes.com/seattle-news/homeless/why-are-people-in-seattle-homeless/">
-                            <img src="/homeless-census-visual.jpg" alt="Homeless Causes" className="h-[100%] rounded-lg" />
+                            <img
+                            src="/homeless-census-visual.jpg"
+                            alt="Homeless Causes"
+                            className="max-w-full max-h-[80vh] object-contain rounded-lg"
+                            />
                         </a>
                     </div>
-                </div></div>
+
+
+                </div>
+            </div>
 
         </>
     );
