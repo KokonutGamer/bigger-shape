@@ -3,35 +3,90 @@ import CardContainer from "./CardContainer";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
 import HistoryModal from "./HistoryModal";
+import { Card } from "react-bootstrap";
+
+interface Resource {
+  name: string;
+  description: string;
+  contact: string;
+  info: string;
+}
 
 const ProfilePage = () => {
   // If user is not yet logged in, redirect them to login page
   // If the user has not yet submitted a questionnaire, redirect them to the
   // survey page. To view the dashboard, they must have at least one submission.
   // Hmm... are we allowing the user to delete previous submissions?
+
+  // Used to redirect the user to another page
   const navigate = useNavigate();
+
   const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
   // Query the questionnaire submissions related to each specific account
   // Each submission has their own ID, which can be stored as a URL parameter (11.10)
+
+  // Used to control the visiblity of the previous submissions modal
   const [isHistoryVisible, setIsHistoryVisible] = useState(false);
-  const cards = renderSubmissions(numberOfSubmissions);
+
+  // Dynamic list of homeless resources
+  const [resources, setResources] = useState<React.ReactNode[]>([]);
+
+  const previousSubmissions = renderSubmissions(numberOfSubmissions);
 
   useEffect(() => {
     document.title = "Dashboard";
     import("bootstrap/dist/css/bootstrap.min.css");
+    loadResources();
   }, []);
 
   const handleTakeQuestionnaire = () => {
     navigate("/survey");
   };
 
-  function showHistory() {
-    setIsHistoryVisible(true);
-  }
-
   function hideHistory() {
     setIsHistoryVisible(false);
   }
+
+  // Probably have a fetch here that will get all the resources
+  const loadResources = () => {
+    setResources([]);
+    const hardCodedResources = [
+      {
+        name: "Homeless shelter program",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas.",
+        contact: "somelink.com",
+        info: "somelink.com",
+      },
+      {
+        name: "Homeless shelter program2",
+        description:
+          "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas.",
+        contact: "somelink2.com",
+        info: "somelink2.com",
+      },
+    ];
+
+    for (let i = 0; i < hardCodedResources.length; i++) {
+      setResources((prevResources) => [
+        ...prevResources,
+        <CardContainer
+          width={5}
+          height={5}
+          fromColor="gray-100"
+          toColor="gray-100"
+          className="flex-col max-w-md"
+        >
+          <p className="font-bold text-lg">{hardCodedResources[i].name}</p>
+          <p>{hardCodedResources[i].description}</p>
+          <span className="flex flex-row justify-center space-x-10">
+            <Button type="button" color="red" text="Contact Now"></Button>
+            <Button type="button" color="red" text="Learn More"></Button>
+          </span>
+        </CardContainer>,
+      ]);
+    }
+  };
 
   return (
     <>
@@ -82,13 +137,13 @@ const ProfilePage = () => {
           toColor="blue-500"
           className="flex-col overflow-y-auto max-h-96 overscroll-contain flex-grow"
         >
-          {cards}
+          {resources}
         </CardContainer>
       </CardContainer>
       <HistoryModal
         show={isHistoryVisible}
         hide={hideHistory}
-        submissions={cards}
+        submissions={previousSubmissions}
       ></HistoryModal>
     </>
   );
@@ -129,5 +184,4 @@ const renderSubmissions = (numberOfSubmissions: number) => {
   }
   return cards;
 };
-
 export default ProfilePage;
