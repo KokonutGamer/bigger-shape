@@ -76,3 +76,8 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.scrollableModal {
+  max-height: 50%;
+  overflow-y: auto;
+}
