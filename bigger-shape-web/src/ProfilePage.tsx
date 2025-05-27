@@ -3,14 +3,6 @@ import CardContainer from "./CardContainer";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
 import HistoryModal from "./HistoryModal";
-import { Card } from "react-bootstrap";
-
-interface Resource {
-  name: string;
-  description: string;
-  contact: string;
-  info: string;
-}
 
 const ProfilePage = () => {
   // If user is not yet logged in, redirect them to login page
@@ -31,6 +23,7 @@ const ProfilePage = () => {
   // Dynamic list of homeless resources
   const [resources, setResources] = useState<React.ReactNode[]>([]);
 
+  // An array of cards that appear on the submissions modal
   const previousSubmissions = renderSubmissions(numberOfSubmissions);
 
   useEffect(() => {
@@ -80,8 +73,20 @@ const ProfilePage = () => {
           <p className="font-bold text-lg">{hardCodedResources[i].name}</p>
           <p>{hardCodedResources[i].description}</p>
           <span className="flex flex-row justify-center space-x-10">
-            <Button type="button" color="red" text="Contact Now"></Button>
-            <Button type="button" color="red" text="Learn More"></Button>
+            <Button
+              type="button"
+              color="red"
+              text="Contact Now"
+              onClick={() =>
+                window.open(hardCodedResources[i].contact, "_blank")
+              }
+            ></Button>
+            <Button
+              type="button"
+              color="red"
+              text="Learn More"
+              onClick={() => window.open(hardCodedResources[i].info, "_blank")}
+            ></Button>
           </span>
         </CardContainer>,
       ]);
@@ -137,6 +142,22 @@ const ProfilePage = () => {
           toColor="blue-500"
           className="flex-col overflow-y-auto max-h-96 overscroll-contain flex-grow"
         >
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          {/* So I'm trying to figure out to relate survey risk with the resources
+          since they're two different tables.
+          */}
+          <p className="text-xl font-bold">Survey Results</p>
+          <p className="text-lg">Risk Level: 1/10 </p>
           {resources}
         </CardContainer>
       </CardContainer>
