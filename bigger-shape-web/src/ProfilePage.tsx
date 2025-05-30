@@ -142,21 +142,10 @@ const ProfilePage = () => {
           toColor="blue-500"
           className="flex-col overflow-y-auto max-h-96 overscroll-contain flex-grow"
         >
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
           {/* So I'm trying to figure out to relate survey risk with the resources
           since they're two different tables.
           */}
-          <p className="text-xl font-bold">Survey Results</p>
+          <p className="text-xl font-bold pt-72">Survey Results</p>
           <p className="text-lg">Risk Level: 1/10 </p>
           {resources}
         </CardContainer>
