@@ -1,11 +1,17 @@
-function InputField({ type, id, label, options, requiredField, regex, setIsValidInput}) {
+function InputField({ type, id, label, options, requiredField, regex, setIsValidInput }) {
   function checkInput(event) {
     // console.log("keyup");
     const value = event.target.value;
-    if(!requiredField && value === "") {
-      setIsValidInput(true);
-    }else{
-      setIsValidInput(regex.test(value));
+    if (!requiredField && value === "") {
+      setIsValidInput(prevState => ({
+        ...prevState,
+        [id]: true
+      }));
+    } else {
+      setIsValidInput(prevState => ({
+        ...prevState,
+        [id]: regex.test(value)
+      }));
     }
   }
 
@@ -16,7 +22,7 @@ function InputField({ type, id, label, options, requiredField, regex, setIsValid
       return (
         <div className="flex mt-[2vh]">
           <label htmlFor={id} className="pr-[1vh] text-white min-w-[10vw]">{label}</label>
-          <input type={type} id={id} name={id} className="bg-white rounded" required={requiredField} onKeyUp={checkInput}></input>
+          <input type={type} id={id} name={id} className="bg-white rounded text-center" required={requiredField} onChange={checkInput}></input>
           <br></br>
         </div>
       );
