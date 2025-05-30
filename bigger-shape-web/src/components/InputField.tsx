@@ -1,5 +1,18 @@
-function InputField({ type, id, label, options, requiredField, regex, setIsValidInput }) {
+function InputField({ type, id, label, options, requiredField, regex, setIsValidInput, sizeRange, setIsValidLength, setCurrentValue, currentValue }) {
   function checkInput(event) {
+    if (sizeRange) {
+      if (event.target.value.length < sizeRange.min || event.target.value.length > sizeRange.max) {
+        setIsValidLength(prevState => ({
+          ...prevState,
+          [id]: false
+        }));
+      } else {
+        setIsValidLength(prevState => ({
+          ...prevState,
+          [id]: true
+        }));
+      }
+    }
     // console.log("keyup");
     const value = event.target.value;
     if (!requiredField && value === "") {
@@ -7,12 +20,16 @@ function InputField({ type, id, label, options, requiredField, regex, setIsValid
         ...prevState,
         [id]: true
       }));
-    } else {
+    } else if (regex) {
       setIsValidInput(prevState => ({
         ...prevState,
         [id]: regex.test(value)
       }));
     }
+  }
+
+  function updateCurrentValue(event) {
+    setCurrentValue(event.target.value);
   }
 
   const labelClass = 'text-left pb-[2vh]';
@@ -22,9 +39,12 @@ function InputField({ type, id, label, options, requiredField, regex, setIsValid
       return (
         <div className="flex mt-[2vh]">
           <label htmlFor={id} className="pr-[1vh] text-white min-w-[10vw]">{label}</label>
-          <input type={type} id={id} name={id} className="bg-white rounded text-center" required={requiredField} onChange={checkInput}></input>
+          <input type={type} id={id} name={id} className="bg-white rounded text-center" required={requiredField} onChange={(e) => {
+            checkInput(e);
+            updateCurrentValue(e);
+          }}></input>
           <br></br>
-        </div>
+        </div >
       );
     case 'select':
       if (options === null || label === null) {
@@ -33,8 +53,8 @@ function InputField({ type, id, label, options, requiredField, regex, setIsValid
       return (
         <>
           <label className={labelClass}>{label}</label>
-          <select id={id} className="bg-white">
-            <option value="" disabled selected>
+          <select id={id} className="bg-white" onChange={updateCurrentValue} value={currentValue || "default"}>
+            <option value="default" disabled>
               Select Option
             </option>
             {options.map((option, idx) => (
