@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import SurveyField from './SurveyField';
+import InputField from './InputField';
 import ProgressBar from './ProgressBar';
 
 
@@ -109,7 +109,7 @@ function Survey() {
       },
     ],
   },
-];
+  ];
 
 
   const [page, setPage] = useState(0);
@@ -122,7 +122,7 @@ function Survey() {
   }
 
   const jsx = pages[page].fields.map((question, idx) => (
-    <SurveyField key={idx} {...question} />
+    <InputField key={idx} {...question} />
   ));
 
   return (
@@ -136,6 +136,7 @@ function Survey() {
                 `
             }
         </style>
+       
        
       <div className="w-[90vh] h-[90vh] flex flex-col p-[5vh] bg-gradient-to-br from-blue-200 to-blue-500
             rounded-lg
