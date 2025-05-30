@@ -1,16 +1,48 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import CardContainer from "./CardContainer";
 import Button from "./Button";
+import { Auth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { useNavigate } from "react-router-dom";
+import { createClient, type Session } from "@supabase/supabase-js";
+
+async function signInWithGoogle() {}
 
 const inputClass =
   "pl-12 w-full rounded px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
 
-const handleSubmit = () => {};
-
-const handleGoogleLogin = () => {};
-
 const LoginPage = () => {
   //   If user is already logged in, redirect them to another page
+
+  const handleSubmit = () => {};
+
+  const handleGoogleLogin = () => {};
+
+  const navigate = useNavigate();
+
+  const [session, setSession] = useState<Session | null>(null);
+
+  const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY
+  );
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        navigate("/dashboard");
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   useEffect(() => {
     document.title = "Log Into SHAPE";
   }, []);
