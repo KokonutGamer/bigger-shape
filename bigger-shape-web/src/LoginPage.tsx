@@ -1,54 +1,69 @@
 import React, { useEffect, useState } from "react";
 import CardContainer from "./CardContainer";
 import Button from "./Button";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { createClient, type Session } from "@supabase/supabase-js";
-
-async function signInWithGoogle() {}
 
 const inputClass =
   "pl-12 w-full rounded px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
 
 const LoginPage = () => {
-  //   If user is already logged in, redirect them to another page
-
   const handleSubmit = () => {};
-
-  const handleGoogleLogin = () => {};
 
   const navigate = useNavigate();
 
   const [session, setSession] = useState<Session | null>(null);
 
+  // Used to display an error if OAuth2 with Google fails
+  const [oAuthError, setOAuthError] = useState(false);
+
+  // Initialize the Supabase client. This is used for all interactions with the Supabase backend.
   const supabase = createClient(
     import.meta.env.VITE_SUPABASE_URL,
     import.meta.env.VITE_SUPABASE_ANON_KEY
   );
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) {
+    // Attempt to get the current user session from Supabase
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      // If there is already an active session, redirect the user to /dashboard
+      if (currentSession) {
         navigate("/dashboard");
       }
     });
 
+    // Listens to changes in authentication (login, logout, token refresh, etc.)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+      if (newSession) {
+        navigate("/dashboard");
+      }
     });
+    // A cleanup function. Prevents memory leak from onAuthStateChange
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase, navigate]);
 
   useEffect(() => {
     document.title = "Log Into SHAPE";
   }, []);
-  // Things to make it look better
-  // interactive hovers or on focus for textboxes
-  // Custom error visuals
+
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    if (error) {
+      setOAuthError(true);
+    } else {
+      setOAuthError(false);
+    }
+  };
+
   return (
     <>
       <video
@@ -109,6 +124,9 @@ const LoginPage = () => {
             imagePath="/google-logo.png"
             altText="Google logo"
           />
+          {oAuthError && (
+            <p className="text-red-600 font-bold">Error logging into Google.</p>
+          )}
           <div className="flex justify-between text-sm">
             <a href="/signup" className="text-blue-600 underline">
               Don't have an account?
