@@ -4,9 +4,6 @@ import Button from "./Button";
 import { useNavigate } from "react-router-dom";
 import { createClient, type Session } from "@supabase/supabase-js";
 
-const inputClass =
-  "pl-12 w-full rounded px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
-
 const LoginPage = () => {
   const handleSubmit = () => {};
 
@@ -158,6 +155,8 @@ const Input: React.FC<InputProps> = ({
   height,
   altText,
 }) => {
+  const inputClass =
+    "pl-12 w-full rounded px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
   return (
     <>
       <label htmlFor={id} className="text-left block">
