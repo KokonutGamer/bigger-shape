@@ -1,6 +1,7 @@
 import InputField from "./components/InputField";
 import ErrorMessage from "./components/ErrorMessage";
 import { useEffect, useState } from "react";
+import NavBar from "./components/NavBar";
 
 function CreateAccountPage() {
     const [isValidInput, setIsValidInput] = useState({
@@ -35,11 +36,12 @@ function CreateAccountPage() {
                 {`
                     body {
                         background-image: linear-gradient(to top left, #bfdbfe, #3b82f6);
-                    }    
-                    `}
+                        }    
+                        `}
             </style>
             <div className="flex flex-col items-center justify-center h-[100vh] w-[100vw]">
-                <h1 className="text-3xl font-bold mb-4">Create Account</h1>
+                <NavBar />
+                <h1 className="text-white text-3xl font-bold mb-4 mt-[9vh] mb-[7vh]">Create Account</h1>
                 <div className="flex flex-col items-center justify-center w-[40vw] h-[60vh] bg-gradient-to-br from-blue-200 to-blue-500
                 rounded-lg
                 text-black
@@ -49,11 +51,11 @@ function CreateAccountPage() {
                     <ErrorMessage message="Must be between 3 and 20 characters" hidden={isValidLength.userName} />
 
 
-                    <InputField type="text" id="password" label="New Password:" requiredField={true} regex={/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/} setIsValidInput={setIsValidInput} sizeRange={{ min: 8, max: 20 }} setIsValidLength={setIsValidLength} setCurrentValue={setPassword} />
+                    <InputField type="password" id="password" label="New Password:" requiredField={true} regex={/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/} setIsValidInput={setIsValidInput} sizeRange={{ min: 8, max: 20 }} setIsValidLength={setIsValidLength} setCurrentValue={setPassword} />
                     <ErrorMessage message="Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character." hidden={isValidInput.password} />
                     <ErrorMessage message="Must be between 8 and 20 characters" hidden={isValidLength.password} />
 
-                    <InputField type="text" id="passwordConfirm" label="Confirm Password:" requiredField={true} setIsValidInput={setIsValidInput} setCurrentValue={setConfirmPassword} />
+                    <InputField type="password" id="passwordConfirm" label="Confirm Password:" requiredField={true} setIsValidInput={setIsValidInput} setCurrentValue={setConfirmPassword} />
                     <ErrorMessage message="Must match password" hidden={isValidInput.confirmPassword} />
                     <ErrorMessage message="Placeholder" hidden={true} />
 
@@ -65,8 +67,10 @@ function CreateAccountPage() {
                     <InputField type="text" id="phoneNumber" label="Phone Number:" requiredField={false} regex={/^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/} setIsValidInput={setIsValidInput} />
                     <ErrorMessage message="Must be a valid phone number: 123-456-7890" hidden={isValidInput.phoneNumber} />
 
-                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-[2vh]">Create Account</button>
+                    <p className="text-white text-sm text-center mt-[2vh]">* required field</p>
+
                 </div>
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-[2vh]">Create Account</button>
             </div>
         </>
     );

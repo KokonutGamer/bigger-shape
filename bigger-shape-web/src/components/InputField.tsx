@@ -36,13 +36,14 @@ function InputField({ type, id, label, options, requiredField, regex, setIsValid
   // console.log(type, id, label, options);
   switch (type) {
     case 'text':
+    case 'password':
       return (
         <div className="flex mt-[2vh]">
           <label htmlFor={id} className="pr-[1vh] text-white min-w-[10vw]">{label}</label>
           <input type={type} id={id} name={id} className="bg-white rounded text-center" required={requiredField} onChange={(e) => {
             checkInput(e);
             updateCurrentValue(e);
-          }}></input>
+          }}></input><p><span className="ml-2 text-white">{requiredField ? "*" : " "}</span></p>
           <br></br>
         </div >
       );

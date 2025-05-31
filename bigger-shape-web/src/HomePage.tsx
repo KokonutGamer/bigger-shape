@@ -1,11 +1,11 @@
 import NavBar from "./components/NavBar";
-function HomePage(){
-    const boxStyle ='border-4 border-blue-500 w-[40vw] h-[60vh] rounded-lg p-[2vh] flex justify-center items-center flex-col';
+function HomePage() {
+    const boxStyle = 'border-4 border-blue-500 w-[40vw] h-[60vh] rounded-lg p-[2vh] flex justify-center items-center flex-col ';
     return (
         <>
             <style>
                 {
-                `
+                    `
                     body {
                         background-color: #bfdbfe;
                         height: 100vh;
@@ -21,10 +21,10 @@ function HomePage(){
                         margin: 0;
                     }
                 `
-                }   
+                }
             </style>
             <div className="flex flex-col items-center justify-center w-[100vw] h-[100vh]">
-                <NavBar/>
+                <NavBar />
                 <p className="text-5xl font-bold text-center mt-[10vh] text-black">Welcome to SHAPE</p>
                 <p className="text-center mt-[1vh] mb-[5vh] text-black">Seattle Homeless Aid & Prevention Effort
                 </p>
@@ -35,7 +35,7 @@ function HomePage(){
                             homelessness in 2024. This figure has increased compared to 2022. Our site aims to act as an early warning sign for individuals who may be
                             at risk in the future, as well as providing resources for those
                             currently at risk. The process is simple:
-                             {/* addstats */}
+                            {/* addstats */}
                         </p>
                         <div className="flex items-center justify-between mt-[2vh] w-[100%] h-[60%]">
                             <div className="w-[25%] h-[40%]">
@@ -45,7 +45,7 @@ function HomePage(){
                             <div className="w-[25%] h-[50%]">
                                 <img src="/surveyLogo.svg" alt="Create Account" className="w-[100%] h-[100%] rounded-lg color-white" />
                                 <p className="text-center mt-[1vh] text-black">Take The Survey</p>
-                            </div>                           
+                            </div>
                             <div className="w-[25%] h-[40%]">
                                 <img src="/handsHelpingLogo.svg" alt="Create Account" className="w-[100%] h-[100%] rounded-lg color-white" />
                                 <p className="text-center mt-[1vh] text-black">Get The Help You Need</p>
@@ -53,15 +53,19 @@ function HomePage(){
 
                         </div>
                     </div>
-                    <div className={`${boxStyle} flex items-center justify-center overflow-hidden`}>
+                    {/* <div className={`${boxStyle} overflow-hidden`}>
                         <a href="https://www.seattletimes.com/seattle-news/homeless/why-are-people-in-seattle-homeless/">
                             <img
-                            src="/homeless-census-visual.jpg"
-                            alt="Homeless Causes"
-                            className="max-w-full max-h-[80vh] object-contain rounded-lg"
+                                src="/homeless-census-visual.jpg"
+                                alt="Homeless Causes"
+                                className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
                             />
                         </a>
+                    </div> */}
+                    <div className="w-[40vw] h-[60vh] max-w-md  border-4 border-blue-500  rounded-lg p-[2vh] overflow-hidden flex justify-center items-center flex-col">
+                        <img src="/homeless-census-visual.jpg" alt="Example" className="max-w-full max-h-full object-contain" />
                     </div>
+
 
 
                 </div>
