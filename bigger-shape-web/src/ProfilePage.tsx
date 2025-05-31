@@ -167,9 +167,9 @@ const ProfilePage = () => {
     ];
 
     // Traverse through the fetched JSON and create a card for each resource
+    const resourceCards = [];
     for (let i = 0; i < hardCodedResources.length; i++) {
-      setResources((prevResources) => [
-        ...prevResources,
+      resourceCards.push(
         <CardContainer
           key={`resources${i}`}
           width={5}
@@ -196,9 +196,10 @@ const ProfilePage = () => {
               onClick={() => window.open(hardCodedResources[i].info, "_blank")}
             ></Button>
           </span>
-        </CardContainer>,
-      ]);
+        </CardContainer>
+      );
     }
+    setResources(resourceCards);
   };
 
   return (
