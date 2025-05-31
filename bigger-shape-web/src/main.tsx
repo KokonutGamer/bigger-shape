@@ -8,16 +8,19 @@ import ProfilePage from "./ProfilePage";
 import "./index.css";
 import SurveyPage from "./SurveyPage";
 import HomePage from "./HomePage";
+import { AuthProvider } from "./AuthContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/Survey" element={<SurveyPage />} />
-        <Route path="/dashboard" element={<ProfilePage />} />
-        <Route path="/" element={<HomePage />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/Survey" element={<SurveyPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<ProfilePage />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

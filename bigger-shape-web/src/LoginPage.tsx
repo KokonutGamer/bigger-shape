@@ -2,52 +2,30 @@ import React, { useEffect, useState } from "react";
 import CardContainer from "./CardContainer";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
-import { createClient, type Session } from "@supabase/supabase-js";
+import { useAuth, supabase } from "./AuthContext";
 
 const LoginPage = () => {
   const handleSubmit = () => {};
 
   const navigate = useNavigate();
-
-  const [session, setSession] = useState<Session | null>(null);
+  const auth = useAuth();
 
   // Used to display an error if OAuth2 with Google fails
   const [oAuthError, setOAuthError] = useState(false);
 
-  // Initialize the Supabase client. This is used for all interactions with the Supabase backend.
-  const supabase = createClient(
-    import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_ANON_KEY
-  );
-
+  // If the user is already authenticated, redirect them to the dashboard
   useEffect(() => {
-    // Attempt to get the current user session from Supabase
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession);
-      // If there is already an active session, redirect the user to /dashboard
-      if (currentSession) {
-        navigate("/dashboard");
-      }
-    });
-
-    // Listens to changes in authentication (login, logout, token refresh, etc.)
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-      if (newSession) {
-        navigate("/dashboard");
-      }
-    });
-    // A cleanup function. Prevents memory leak from onAuthStateChange
-    return () => subscription.unsubscribe();
-  }, [supabase, navigate]);
+    if (!auth?.isLoading && auth?.session) {
+      navigate("/dashboard");
+    }
+  });
 
   useEffect(() => {
     document.title = "Log Into SHAPE";
   }, []);
 
   const handleGoogleLogin = async () => {
+    setOAuthError(false); // reset
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -56,10 +34,12 @@ const LoginPage = () => {
     });
     if (error) {
       setOAuthError(true);
-    } else {
-      setOAuthError(false);
     }
   };
+
+  if (auth?.isLoading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <>
