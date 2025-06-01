@@ -23,8 +23,11 @@ function HomePage() {
                 `
                 }
             </style>
-            <div className="flex flex-col items-center justify-center w-[100vw] h-[100vh]">
+            <div className="flex items-center justify-center flex-col w-[100vw] h-[10vh]">
                 <NavBar />
+            </div>
+
+            <div className="flex flex-col items-center justify-center w-[100vw] h-[90vh]">
                 <p className="text-5xl font-bold text-center mt-[10vh] text-black">Welcome to SHAPE</p>
                 <p className="text-center mt-[1vh] mb-[5vh] text-black">Seattle Homeless Aid & Prevention Effort
                 </p>
@@ -39,15 +42,20 @@ function HomePage() {
                         </p>
                         <div className="flex items-center justify-between mt-[2vh] w-[100%] h-[60%]">
                             <div className="w-[25%] h-[40%]">
-                                <img src="/profileLogo.svg" alt="Create Account" className="w-[100%] h-[100%] rounded-lg color-white" />
+                                <a href="/signup">
+                                    <img src="/blackProfileLogo.svg" alt="Create Account Photo" className="w-[100%] h-[100%] rounded-lg color-white" />
+
+                                </a>
                                 <p className="text-center mt-[1vh] text-black">Create An Account</p>
                             </div>
                             <div className="w-[25%] h-[50%]">
-                                <img src="/surveyLogo.svg" alt="Create Account" className="w-[100%] h-[100%] rounded-lg color-white" />
+                                <a href="/survey">
+                                    <img src="/surveyLogo.svg" alt="Survey Logo" className="w-[100%] h-[100%] rounded-lg color-white" />
+                                </a>
                                 <p className="text-center mt-[1vh] text-black">Take The Survey</p>
                             </div>
                             <div className="w-[25%] h-[40%]">
-                                <img src="/handsHelpingLogo.svg" alt="Create Account" className="w-[100%] h-[100%] rounded-lg color-white" />
+                                <img src="/handsHelpingLogo.svg" alt="Help Logo" className="w-[100%] h-[100%] rounded-lg color-white" />
                                 <p className="text-center mt-[1vh] text-black">Get The Help You Need</p>
                             </div>
 

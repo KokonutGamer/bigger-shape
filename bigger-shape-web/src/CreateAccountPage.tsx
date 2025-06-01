@@ -43,8 +43,11 @@ function CreateAccountPage() {
                         }    
                         `}
             </style>
-            <div className="flex flex-col items-center justify-center h-[100vh] w-[100vw]">
+            <div className="flex items-center justify-center flex-col w-[100vw] h-[10vh]">
+
                 <NavBar />
+            </div>
+            <div className="flex flex-col items-center justify-center h-[90vh] w-[100vw]">
                 <h1 className="text-white text-3xl font-bold mb-4 mt-[9vh] mb-[7vh]">Create Account</h1>
                 <div className="flex flex-col items-center justify-center w-[40vw] h-[60vh] bg-gradient-to-br from-blue-200 to-blue-500
                 rounded-lg
