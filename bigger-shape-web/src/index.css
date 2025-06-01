@@ -58,6 +58,12 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+#profile {
+  width: 10rem;
+  height: 10rem;
+  margin: auto;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -69,4 +75,9 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.scrollableModal {
+  max-height: 50%;
+  overflow-y: auto;
 }
