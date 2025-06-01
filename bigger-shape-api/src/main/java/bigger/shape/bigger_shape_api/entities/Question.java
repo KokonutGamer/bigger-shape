@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "Question")
+@Table(name = "question")
 public class Question {
 
     @Id
@@ -28,8 +28,8 @@ public class Question {
     private UUID id;
 
     @NonNull
-    @Column(name = "\"order\"")
-    private String order;
+    @Column(name = "order", unique= true)
+    private Long order;
 
     @ManyToOne
     @JoinColumn(name = "type_id", nullable = false)
