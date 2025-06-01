@@ -34,6 +34,10 @@ function CreateAccountPage() {
         <>
             <style>
                 {`
+                    #root{
+                        padding: 0;
+                        margin: 0;
+                    }
                     body {
                         background-image: linear-gradient(to top left, #bfdbfe, #3b82f6);
                         }    
@@ -67,7 +71,7 @@ function CreateAccountPage() {
                     <InputField type="text" id="phoneNumber" label="Phone Number:" requiredField={false} regex={/^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/} setIsValidInput={setIsValidInput} />
                     <ErrorMessage message="Must be a valid phone number: 123-456-7890" hidden={isValidInput.phoneNumber} />
 
-                    <p className="text-white text-sm text-center mt-[2vh]">* required field</p>
+                    <p className="text-red-600 text-sm text-center mt-[2vh]">* required field</p>
 
                 </div>
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-[2vh]">Create Account</button>

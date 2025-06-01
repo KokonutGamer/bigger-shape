@@ -43,7 +43,7 @@ function InputField({ type, id, label, options, requiredField, regex, setIsValid
           <input type={type} id={id} name={id} className="bg-white rounded text-center" required={requiredField} onChange={(e) => {
             checkInput(e);
             updateCurrentValue(e);
-          }}></input><p><span className="ml-2 text-white">{requiredField ? "*" : " "}</span></p>
+          }}></input><p><span className="ml-2 text-red-600">{requiredField ? "*" : " "}</span></p>
           <br></br>
         </div >
       );

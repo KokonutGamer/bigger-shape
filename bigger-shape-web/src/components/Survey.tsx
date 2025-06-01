@@ -221,6 +221,10 @@ function Survey() {
       <style>
         {
           `
+                #root{
+                  padding: 0;
+                  margin: 0;
+                }
                 body {
                     background-image: linear-gradient(to top left, #bfdbfe, #3b82f6);
                 }    
