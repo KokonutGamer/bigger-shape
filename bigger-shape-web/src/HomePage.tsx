@@ -65,13 +65,13 @@ function HomePage() {
                         <a href="https://www.seattletimes.com/seattle-news/homeless/why-are-people-in-seattle-homeless/">
                             <img
                                 src="/homeless-census-visual.jpg"
-                                alt="Homeless Causes"
+                                alt=""
                                 className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
                             />
                         </a>
                     </div> */}
-                    <div className="w-[40vw] h-[60vh] max-w-md  border-4 border-blue-500  rounded-lg p-[2vh] overflow-hidden flex justify-center items-center flex-col">
-                        <img src="/homeless-census-visual.jpg" alt="Example" className="max-w-full max-h-full object-contain" />
+                    <div className="w-[40vw] h-[60vh]  border-4 border-blue-500  rounded-lg p-[2vh] overflow-hidden flex justify-center items-center flex-col">
+                        <img src="/homeless-census-visual.jpg" alt="Homeless Causes" className="max-w-full max-h-full object-contain" />
                     </div>
 
 
