@@ -34,7 +34,7 @@ public class QuestionnaireResult {
     private String riskScore;
 
     @ManyToOne
-    @JoinColumn(name = "user_ID")
+    @JoinColumn(name = "user_id")
     @NonNull 
     private User user;
 
