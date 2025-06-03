@@ -11,9 +11,9 @@ import lombok.NonNull;
 public class QuestionnaireHistoryEntryDto {
     @NonNull
     private QuestionnaireResultDto questionnaire;
-    private List<AnswerRecommendationDto> answers;
+    private List<AnswerDto> answers;
 
-    public static QuestionnaireHistoryEntryDto fromQustionnaireResultEntity(QuestionnaireResult result) {
+    public static QuestionnaireHistoryEntryDto fromQuestionnaireResultEntity(QuestionnaireResult result) {
         QuestionnaireHistoryEntryDto dto = new QuestionnaireHistoryEntryDto(
                 new QuestionnaireResultDto(result.getDateTaken(), result.getRiskScore()));
         dto.setAnswers(new ArrayList<>());
