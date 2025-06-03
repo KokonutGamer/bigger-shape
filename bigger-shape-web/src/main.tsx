@@ -8,6 +8,7 @@ import ProfilePage from "./ProfilePage";
 import "./index.css";
 import SurveyPage from "./SurveyPage";
 import HomePage from "./HomePage";
+import CreateAccountPage from "./CreateAccountPage";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -15,6 +16,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/Survey" element={<SurveyPage />} />
+        <Route path="/signup" element={<CreateAccountPage />} />
         <Route path="/dashboard" element={<ProfilePage />} />
         <Route path="/" element={<HomePage  />} />
       </Routes>
