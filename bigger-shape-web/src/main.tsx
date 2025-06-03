@@ -9,7 +9,11 @@ import "./index.css";
 import SurveyPage from "./SurveyPage";
 import HomePage from "./HomePage";
 import { AuthProvider } from "./AuthContext";
+
 import AboutUsPage from "./AboutUsPage";
+
+import CreateAccountPage from "./CreateAccountPage";
+
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -19,6 +23,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/" element={<HomePage />} />
           <Route path="/Survey" element={<SurveyPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<CreateAccountPage />} />
           <Route path="/dashboard" element={<ProfilePage />} />
           <Route path="AboutUs" element={<AboutUsPage />} />
         </Routes>

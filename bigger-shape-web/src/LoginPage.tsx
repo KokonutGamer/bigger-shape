@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import CardContainer from "./CardContainer";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +29,9 @@ const LoginPage = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
+        queryParams: {
+          prompt: "select_account",
+        },
         redirectTo: `${window.location.origin}/dashboard`,
       },
     });
