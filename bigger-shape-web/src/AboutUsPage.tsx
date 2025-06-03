@@ -41,7 +41,7 @@ function AboutUsPage() {
                         </p>
                     </div>
                     <div className="border-4 border-blue-500 w-[40vw] h-[60vh] rounded-lg p-[2vh] flex justify-center items-center flex-col">
-                        <p className="text-xl font-bold text-black italic">The Team:</p>
+                        <p className="text-xl font-bold text-black italic">The Team</p>
                         <TeamMember name="David Phillips" github="https://github.com/orionsView" linkedin="https://www.linkedin.com/in/davidphillips7/" />
                         <TeamMember name="Gabe Lapingcao" github="https://github.com/KokonutGamer" linkedin="https://www.linkedin.com/in/davidphillips7/" />
                         <TeamMember name="Kent Mayoya" github="https://github.com/KentMayoya" linkedin="https://www.linkedin.com/in/davidphillips7/" />
