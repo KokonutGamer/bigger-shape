@@ -83,6 +83,7 @@ function CreateAccountPage() {
         }
 
         console.log("Signup successful:", data);
+        window.location.href = "/dashboard";
 
     }
 
