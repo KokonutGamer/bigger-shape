@@ -212,19 +212,19 @@ function Survey() {
       .catch(err => console.error("Fetch error:", err));
   }, []);
 
-  // This will log questions every time it changes
-  useEffect(() => {
-    console.log("Questions updated:", questions);
-    if (questions) {
+  // // This will log questions every time it changes
+  // useEffect(() => {
+  //   console.log("Questions updated:", questions);
+  //   if (questions) {
 
-      console.log("Page:", page);
-      console.log("Type:", questions[page]["type"]);
-      console.log("ID:", questions[page]["id"]);
-      console.log("Label:", questions[page]["label"]);
-      console.log("Options:", questions[page]["options"]);
-    }
+  //     console.log("Page:", page);
+  //     console.log("Type:", questions[page]["type"]);
+  //     console.log("ID:", questions[page]["id"]);
+  //     console.log("Label:", questions[page]["label"]);
+  //     console.log("Options:", questions[page]["options"]);
+  //   }
 
-  }, [questions]);
+  // }, [questions]);
 
   if (!questions) {
     return <h1>Loading...</h1>;
@@ -244,6 +244,8 @@ function Survey() {
 
   function handleSubmit() {
     console.log(selectedAnswer);
+    sessionStorage.setItem("response", JSON.stringify(selectedAnswer));
+    window.location.href = "/dashboard";
   }
 
   return (
