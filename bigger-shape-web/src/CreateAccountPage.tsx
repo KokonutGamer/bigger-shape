@@ -59,7 +59,7 @@ function CreateAccountPage() {
             password,
             options: {
                 data: {
-                    userName, // Required custom metadata
+                    full_name: userName, // Supabase uses full_name as the default display name
                 }
             }
         };
