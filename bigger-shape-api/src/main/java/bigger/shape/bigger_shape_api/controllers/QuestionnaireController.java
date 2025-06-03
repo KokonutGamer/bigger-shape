@@ -7,13 +7,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import bigger.shape.bigger_shape_api.responses.GetQuestionsResponse;
 import bigger.shape.bigger_shape_api.services.QuestionnaireService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 /**
  * MIGHT HAVE TO PUT CORS HERE - not sure about it
  * 
  * @CrossOrigin(origins = "http://localhost:_____")
  */
+
 @RequestMapping("/api/v1")
 public class QuestionnaireController {
   private final QuestionnaireService questionnaireService;
@@ -26,6 +29,7 @@ public class QuestionnaireController {
    * Endpoint to get all questions from the questionnaire.
    * 
    * Test on: "http://localhost:8080/api/v1/public/questions"
+   * 
    * @return ResponseEntity containing GetQuestionsResponse with all questions.
    */
   @GetMapping("/public/questions")
