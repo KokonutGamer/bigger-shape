@@ -7,15 +7,15 @@ import { supabase } from "./AuthContext";
 function CreateAccountPage() {
 
     const [isValidInput, setIsValidInput] = useState({
-        userName: false,
-        password: false,
-        confirmPassword: false,
-        email: false,
+        userName: true,
+        password: true,
+        confirmPassword: true,
+        email: true,
         // phoneNumber: false
     });
     const [isValidLength, setIsValidLength] = useState({
-        userName: false,
-        password: false,
+        userName: true,
+        password: true,
     });
     useEffect(() => {
         console.log(isValidInput);
@@ -45,6 +45,11 @@ function CreateAccountPage() {
 
 
     async function handleCreateAccount() {
+        if (userName === "" || password === "" || confirmPassword === "" || email === "") {
+            console.log("Please fill in all fields.");
+            alert("Please fill in all fields.");
+            return;
+        }
         if (!Object.values(isValidInput).every(Boolean) || !Object.values(isValidLength).every(Boolean)) {
             console.log("Validation failed.");
             return;
