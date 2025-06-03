@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InputField from './InputField';
 import ProgressBar from './ProgressBar';
 
@@ -111,95 +111,125 @@ function Survey() {
   // },
   // ];
 
-  const questions = [
-    {
-      type: 'select',
-      id: 'income',
-      label: 'Yearly Income:',
-      options: [
-        '0$ - 10,000$',
-        '10,001$ - 20,000$',
-        '20,001$ - 40,000$',
-        '40,001$ - 60,000$',
-        '60,001$ - 80,000$',
-        '80,001$ - 100,000$',
-        '100,001$ - 250,000$',
-        '250,000$+',
-      ],
-    },
-    {
-      type: 'select',
-      id: 'zipCode',
-      label: 'ZipCode:',
-      options: [
-        '98101', '98102', '98103', '98104', '98105', '98106', '98107',
-        '98108', '98109', '98112', '98113', '98115', '98116', '98117',
-        '98118', '98119', '98121', '98122', '98125', '98126', '98133',
-        '98134', '98136', '98141', '98144', '98146', '98154', '98161',
-        '98165', '98170', '98174', '98175', '98177', '98178', '98181',
-        '98185', '98190', '98191', '98194', '98199',
-      ],
-    },
-    {
-      type: 'select',
-      id: 'foodCost',
-      label: 'Monthly Food Spending:',
-      options: ['0$ - 50$', '51$ - 100$', '101$ - 200$', '201$ - 500$', '500$+'],
-    },
-    {
-      type: 'select',
-      id: 'rentCost',
-      label: 'Monthly Rent Amount:',
-      options: [
-        '0$ - 500$', '501$ - 1,000$', '1,001$ - 2,000$', '2,001$ - 3,000$',
-        '3,001$ - 4,000$', '4,001$ - 5,000$', '5,000$+',
-      ],
-    },
-    {
-      type: 'select',
-      id: 'addtionalCost',
-      label: 'Monthly Additional Spending:',
-      options: [
-        '0$ - 250$', '251$ - 500$', '501$ - 1,000$', '1,001$ - 1,500$',
-        '1,501$ - 2,000$', '2,001$ - 3,000$', '3,001$ - 4,000$',
-        '4,001$ - 5,000$', '5,000$+',
-      ],
-    },
-    {
-      type: 'select',
-      id: 'numDependents',
-      label: 'Number Of Dependents:',
-      options: ['1', '2', '3', '4', '5+'],
-    },
-    {
-      type: 'select',
-      id: 'familyNearBy',
-      label: 'Do you have family who can provide support within 100 miles:',
-      options: ['Yes', 'No'],
-    },
-    {
-      type: 'select',
-      id: 'age',
-      label: 'Age Range (Years):',
-      options: ['Under 18', '19-25', '26-30', '30-40', '50+'],
-    },
-    {
-      type: 'select',
-      id: 'drinkAmmount',
-      label: 'Average Drinks Per Week:',
-      options: ['1-2', '3-4', '5-6', '5+'],
-    },
-    {
-      type: 'select',
-      id: 'disabilityStatus',
-      label: 'Disability Status:',
-      options: ['Partial Disabilty', 'Total Disabilty', 'Not Disabled'],
-    },
-  ];
-
-  const [selectedAnswer, setSelectedAnswer] = useState(Array(questions.length).fill("default"));
-
+  // const questions = [
+  //   {
+  //     type: 'select',
+  //     id: 'income',
+  //     label: 'Yearly Income:',
+  //     options: [
+  //       '0$ - 10,000$',
+  //       '10,001$ - 20,000$',
+  //       '20,001$ - 40,000$',
+  //       '40,001$ - 60,000$',
+  //       '60,001$ - 80,000$',
+  //       '80,001$ - 100,000$',
+  //       '100,001$ - 250,000$',
+  //       '250,000$+',
+  //     ],
+  //   },
+  //   {
+  //     type: 'select',
+  //     id: 'zipCode',
+  //     label: 'ZipCode:',
+  //     options: [
+  //       '98101', '98102', '98103', '98104', '98105', '98106', '98107',
+  //       '98108', '98109', '98112', '98113', '98115', '98116', '98117',
+  //       '98118', '98119', '98121', '98122', '98125', '98126', '98133',
+  //       '98134', '98136', '98141', '98144', '98146', '98154', '98161',
+  //       '98165', '98170', '98174', '98175', '98177', '98178', '98181',
+  //       '98185', '98190', '98191', '98194', '98199',
+  //     ],
+  //   },
+  //   {
+  //     type: 'select',
+  //     id: 'foodCost',
+  //     label: 'Monthly Food Spending:',
+  //     options: ['0$ - 50$', '51$ - 100$', '101$ - 200$', '201$ - 500$', '500$+'],
+  //   },
+  //   {
+  //     type: 'select',
+  //     id: 'rentCost',
+  //     label: 'Monthly Rent Amount:',
+  //     options: [
+  //       '0$ - 500$', '501$ - 1,000$', '1,001$ - 2,000$', '2,001$ - 3,000$',
+  //       '3,001$ - 4,000$', '4,001$ - 5,000$', '5,000$+',
+  //     ],
+  //   },
+  //   {
+  //     type: 'select',
+  //     id: 'addtionalCost',
+  //     label: 'Monthly Additional Spending:',
+  //     options: [
+  //       '0$ - 250$', '251$ - 500$', '501$ - 1,000$', '1,001$ - 1,500$',
+  //       '1,501$ - 2,000$', '2,001$ - 3,000$', '3,001$ - 4,000$',
+  //       '4,001$ - 5,000$', '5,000$+',
+  //     ],
+  //   },
+  //   {
+  //     type: 'select',
+  //     id: 'numDependents',
+  //     label: 'Number Of Dependents:',
+  //     options: ['1', '2', '3', '4', '5+'],
+  //   },
+  //   {
+  //     type: 'select',
+  //     id: 'familyNearBy',
+  //     label: 'Do you have family who can provide support within 100 miles:',
+  //     options: ['Yes', 'No'],
+  //   },
+  //   {
+  //     type: 'select',
+  //     id: 'age',
+  //     label: 'Age Range (Years):',
+  //     options: ['Under 18', '19-25', '26-30', '30-40', '50+'],
+  //   },
+  //   {
+  //     type: 'select',
+  //     id: 'drinkAmmount',
+  //     label: 'Average Drinks Per Week:',
+  //     options: ['1-2', '3-4', '5-6', '5+'],
+  //   },
+  //   {
+  //     type: 'select',
+  //     id: 'disabilityStatus',
+  //     label: 'Disability Status:',
+  //     options: ['Partial Disabilty', 'Total Disabilty', 'Not Disabled'],
+  //   },
+  // ];
+  const [questions, setQuestions] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState([]);
   const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    fetch('/response_forTesting.json')
+      .then(res => res.json())
+      .then(data => {
+        console.log("Fetched data:", data);  // This should log your JSON object
+        setQuestions(data.questions);
+        setSelectedAnswer(Array(data.questions.length).fill("default"));
+        // console.log(questions);
+      })
+      .catch(err => console.error("Fetch error:", err));
+  }, []);
+
+  // // This will log questions every time it changes
+  // useEffect(() => {
+  //   console.log("Questions updated:", questions);
+  //   if (questions) {
+
+  //     console.log("Page:", page);
+  //     console.log("Type:", questions[page]["type"]);
+  //     console.log("ID:", questions[page]["id"]);
+  //     console.log("Label:", questions[page]["label"]);
+  //     console.log("Options:", questions[page]["options"]);
+  //   }
+
+  // }, [questions]);
+
+  if (!questions) {
+    return <h1>Loading...</h1>;
+  }
+
 
   function decrePage() {
     setPage((curPage) => (curPage > 0 ? curPage - 1 : curPage));
@@ -214,6 +244,8 @@ function Survey() {
 
   function handleSubmit() {
     console.log(selectedAnswer);
+    sessionStorage.setItem("response", JSON.stringify(selectedAnswer));
+    window.location.href = "/dashboard";
   }
 
   return (
@@ -247,8 +279,15 @@ function Survey() {
               <h1 className="text-center text-3xl font-bold mb-4 text-white">Survey Completed!</h1>
             </div>) : (
               <div className="flex flex-col justify-center h-[50%]">
+
                 <InputField
-                  {...questions[page]}
+                  // {...questions[page]}
+
+                  type={questions[page]["type"]}
+                  id={questions[page]["id"]}
+                  label={questions[page]["label"]}
+                  options={questions[page]["options"]}
+
                   currentValue={selectedAnswer[page]}
                   setCurrentValue={(value) => {
                     setSelectedAnswer(prev => {

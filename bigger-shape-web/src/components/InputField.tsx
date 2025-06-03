@@ -34,7 +34,7 @@ function InputField({ type, id, label, options, requiredField, regex, setIsValid
 
   const labelClass = 'text-left pb-[2vh]';
   // console.log(type, id, label, options);
-  switch (type) {
+  switch (type.toLowerCase()) {
     case 'text':
     case 'password':
       return (
