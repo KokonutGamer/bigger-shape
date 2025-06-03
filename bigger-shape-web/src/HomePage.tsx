@@ -1,6 +1,6 @@
 import NavBar from "./components/NavBar";
 function HomePage() {
-    const boxStyle = 'border-4 border-blue-500 w-[40vw] h-[60vh] rounded-lg p-[2vh] flex justify-center items-center flex-col ';
+    const boxStyle = 'bg-gradient-to-br from-blue-500 to-blue-200 text-white w-[40vw] h-[60vh] rounded-lg p-[2vh] flex justify-center items-center flex-col';
     return (
         <>
             <style>
@@ -23,15 +23,17 @@ function HomePage() {
                 `
                 }
             </style>
+
             <div className="flex items-center justify-center flex-col w-[100vw] h-[10vh]">
                 <NavBar />
             </div>
 
             <div className="flex flex-col items-center justify-center w-[100vw] h-[90vh]">
                 <p className="text-5xl font-bold text-center mt-[10vh] text-black">Welcome to SHAPE</p>
+
                 <p className="text-center mt-[1vh] mb-[5vh] text-black">Seattle Homeless Aid & Prevention Effort
                 </p>
-                <div className="flex items-center justify-around w-full mt-[5vh] flex-wrap gap-4">
+                <div className="flex items-center justify-around w-full flex-wrap gap-4">
                     <div className={boxStyle}>
                         <p className="text-left mt-[1vh] text-black text-[clamp(0.75rem,1.5vw,1.5rem)]">
                             Over <strong>16,000</strong> Seattle individuals experienced
@@ -61,12 +63,14 @@ function HomePage() {
 
                         </div>
                     </div>
+
                     {/* <div className={`${boxStyle} overflow-hidden`}>
                         <a href="https://www.seattletimes.com/seattle-news/homeless/why-are-people-in-seattle-homeless/">
                             <img
                                 src="/homeless-census-visual.jpg"
                                 alt=""
                                 className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
+
                             />
                         </a>
                     </div> */}
