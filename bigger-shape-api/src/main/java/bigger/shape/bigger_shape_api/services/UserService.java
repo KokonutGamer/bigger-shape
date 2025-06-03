@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import bigger.shape.bigger_shape_api.dtos.AnswerDto;
-import bigger.shape.bigger_shape_api.dtos.AnswerRecommendationDto;
 import bigger.shape.bigger_shape_api.dtos.QuestionnaireHistoryEntryDto;
 import bigger.shape.bigger_shape_api.entities.Answer;
 import bigger.shape.bigger_shape_api.entities.AnswerId;
@@ -37,7 +36,7 @@ public class UserService {
     public List<QuestionnaireHistoryEntryDto> getQuestionnaireHistory(UUID id) {
         List<QuestionnaireResult> history = questionnaireRepository.findAllQuestionnaireResultsById(id);
         return history.stream()
-                .map(QuestionnaireHistoryEntryDto::fromQustionnaireResultEntity)
+                .map(QuestionnaireHistoryEntryDto::fromQuestionnaireResultEntity)
                 .toList();
     }
 
@@ -57,8 +56,7 @@ public class UserService {
 
         // Save answers if they exist
         if (!dto.getAnswers().isEmpty()) {
-            for (AnswerRecommendationDto answerRecommendation : dto.getAnswers()) {
-                AnswerDto answerDto = answerRecommendation.getAnswer();
+            for (AnswerDto answerDto : dto.getAnswers()) {
 
                 // Set the AnswerId for the Answer entity
                 AnswerId answerId = new AnswerId();
