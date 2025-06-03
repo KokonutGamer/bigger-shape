@@ -3,15 +3,22 @@ import CardContainer from "./CardContainer";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
 import HistoryModal from "./HistoryModal";
+import { useAuth } from "./AuthContext";
+import { supabase } from "./AuthContext";
 
 const ProfilePage = () => {
+  // Used to redirect the user to another page
+  const navigate = useNavigate();
+  const auth = useAuth();
+
   // If user is not yet logged in, redirect them to login page
+  useEffect(() => {
+    loadCorrectProfile();
+  }, []);
+
   // If the user has not yet submitted a questionnaire, redirect them to the
   // survey page. To view the dashboard, they must have at least one submission.
   // Hmm... are we allowing the user to delete previous submissions?
-
-  // Used to redirect the user to another page
-  const navigate = useNavigate();
 
   const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
   // Query the questionnaire submissions related to each specific account
@@ -32,13 +39,112 @@ const ProfilePage = () => {
     loadResources();
   }, []);
 
+  // Redirects the user to the survey page
   const handleTakeQuestionnaire = () => {
     navigate("/survey");
   };
 
+  // Logs the user out of their account and redirects the user
+  // to the login page
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      // error handling
+    } else {
+      navigate("/login");
+    }
+  };
+
+  // Closes the history modal
   function hideHistory() {
     setIsHistoryVisible(false);
   }
+
+  // Returns the profile page component depending on whether
+  // or not the user is authenticated or not
+  const loadCorrectProfile = () => {
+    if (!auth?.isLoading && !auth?.session) {
+      // display default profile card
+      return getProfileCard(
+        "Guest",
+        "Sign In",
+        () => navigate("/login"),
+        "/default-pfp.jpg"
+      );
+    } else {
+      // display actual profile card
+      let displayName = "User";
+      if (auth.session?.user.user_metadata.full_name) {
+        displayName = auth.session.user.user_metadata.full_name;
+      }
+      let profilePicture = "/default-pfp.jpg";
+      if (auth.session?.user.user_metadata.avatar_url) {
+        profilePicture = auth.session.user.user_metadata.avatar_url;
+      }
+      console.log(`Profile picture: ${profilePicture}`);
+      let email;
+      if (auth.session?.user.user_metadata.email) {
+        email = auth.session.user.user_metadata.email;
+      }
+      return getProfileCard(
+        displayName,
+        "Get Previous Submissions",
+        () => setIsHistoryVisible(true),
+        profilePicture,
+        email
+      );
+    }
+  };
+
+  // Initializes the profile card containing a user's name, email,
+  // and profile picture
+  const getProfileCard = (
+    name: string,
+    secondButtonText: string,
+    onClick: () => void,
+    profilePicture: string,
+    email?: string
+  ) => {
+    return (
+      <CardContainer
+        width={5}
+        height={5}
+        fromColor="blue-200"
+        toColor="blue-500"
+        className="flex-col"
+      >
+        <img
+          id="profile"
+          src={profilePicture}
+          alt="profile picture"
+          className="overflow-hidden rounded-full"
+          referrerPolicy="no-referrer"
+        ></img>
+        <p>Welcome {name}</p>
+        {email && <p>Email: {email}</p>}
+        <Button
+          type="button"
+          color="green"
+          text="Take Questionnaire"
+          onClick={handleTakeQuestionnaire}
+        ></Button>
+        <Button
+          type="button"
+          color="blue"
+          text={secondButtonText}
+          onClick={onClick}
+        ></Button>
+        {auth?.session && (
+          <Button
+            type="button"
+            color="red"
+            text="Sign out"
+            onClick={handleSignOut}
+          ></Button>
+        )}
+      </CardContainer>
+    );
+  };
 
   // Probably have a fetch here that will get all the resources
   const loadResources = () => {
@@ -60,10 +166,12 @@ const ProfilePage = () => {
       },
     ];
 
+    // Traverse through the fetched JSON and create a card for each resource
+    const resourceCards = [];
     for (let i = 0; i < hardCodedResources.length; i++) {
-      setResources((prevResources) => [
-        ...prevResources,
+      resourceCards.push(
         <CardContainer
+          key={`resources${i}`}
           width={5}
           height={5}
           fromColor="gray-100"
@@ -88,9 +196,10 @@ const ProfilePage = () => {
               onClick={() => window.open(hardCodedResources[i].info, "_blank")}
             ></Button>
           </span>
-        </CardContainer>,
-      ]);
+        </CardContainer>
+      );
     }
+    setResources(resourceCards);
   };
 
   return (
@@ -107,45 +216,18 @@ const ProfilePage = () => {
         toColor="gray-100"
         className="space-x-4"
       >
+        {loadCorrectProfile()}
         <CardContainer
           width={5}
           height={5}
           fromColor="blue-200"
           toColor="blue-500"
-          className="flex-col"
-        >
-          <img
-            id="profile"
-            src="/default-pfp.jpg"
-            alt="profile picture"
-            className="overflow-hidden rounded-full"
-          ></img>
-          <p>Welcome John Smith</p>
-          <p>Email: jsmith@sample.com</p>
-          <Button
-            type="button"
-            color="green"
-            text="Take Questionnaire"
-            onClick={handleTakeQuestionnaire}
-          ></Button>
-          <Button
-            type="button"
-            color="blue"
-            text="See Previous Submissions"
-            onClick={() => setIsHistoryVisible(true)}
-          ></Button>
-        </CardContainer>
-        <CardContainer
-          width={5}
-          height={5}
-          fromColor="blue-200"
-          toColor="blue-500"
-          className="flex-col overflow-y-auto max-h-96 overscroll-contain flex-grow"
+          className="flex-col justify-evenly overflow-y-auto max-h-96 overscroll-contain flex-grow"
         >
           {/* So I'm trying to figure out to relate survey risk with the resources
           since they're two different tables.
           */}
-          <p className="text-xl font-bold pt-72">Survey Results</p>
+          <p className="text-xl font-bold">Survey Results</p>
           <p className="text-lg">Risk Level: 1/10 </p>
           {resources}
         </CardContainer>
@@ -194,4 +276,5 @@ const renderSubmissions = (numberOfSubmissions: number) => {
   }
   return cards;
 };
+
 export default ProfilePage;
