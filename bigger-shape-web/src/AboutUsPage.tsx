@@ -41,10 +41,10 @@ function AboutUsPage() {
                     </div>
                     <div className="bg-gradient-to-br from-blue-500 to-blue-200 text-white w-[40vw] h-[60vh] rounded-lg p-[2vh] flex justify-center items-center flex-col">
                         <p className="text-2xl font-bold text-white italic">The Team</p>
-                        <TeamMember name="Alan Cordova" github="https://github.com/YoloMcFroyo" linkedin="https://www.linkedin.com/in/davidphillips7/" />
-                        <TeamMember name="David Phillips" github="https://github.com/orionsView" linkedin="https://www.linkedin.com/in/davidphillips7/" />
-                        <TeamMember name="Gabe Lapingcao" github="https://github.com/KokonutGamer" linkedin="https://www.linkedin.com/in/davidphillips7/" />
-                        <TeamMember name="Kent Mayoya" github="https://github.com/KentMayoya" linkedin="https://www.linkedin.com/in/davidphillips7/" />
+                        <TeamMember name="Alan Cordova" github="https://github.com/YoloMcFroyo" linkedin="https://www.linkedin.com/in/alan-talcor/" />
+                        <TeamMember name="David Phillips" github="https://github.com/orionsView" linkedin="https://www.linkedin.com/in/david-phillips-swe/" />
+                        <TeamMember name="Gabe Lapingcao" github="https://github.com/KokonutGamer" linkedin="https://www.linkedin.com/in/gabe-lapingcao/" />
+                        <TeamMember name="Kent Mayoya" github="https://github.com/KentMayoya" linkedin="https://www.linkedin.com/in/kent-mayoya/" />
 
                     </div>
                 </div>
