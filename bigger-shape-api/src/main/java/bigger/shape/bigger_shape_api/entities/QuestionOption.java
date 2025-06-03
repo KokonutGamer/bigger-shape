@@ -16,23 +16,18 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "answer")
-public class Answer {
+@Table(name = "question_option")
+public class QuestionOption {
 
   @EmbeddedId
-  private AnswerId id;
+  private QuestionOptionId id;
+
+  @ManyToOne
+  @MapsId("questionId")
+  @JoinColumn(name = "question_id", nullable = false)
+  private Question question;
 
   @NonNull
-  @Column(name = "answer_content")
-  private String answerContent;
-
-  @ManyToOne
-  @MapsId("questionnaireId") // Maps questionnaireId from AnswerId
-  @JoinColumn(name = "questionnaire_id")
-  private QuestionnaireResult questionnaireResult;
-
-  @ManyToOne
-  @MapsId("questionId") // Maps questionId from AnswerId
-  @JoinColumn(name = "question_id")
-  private Question question;
+  @Column(name="content", nullable= false)
+  private String content;
 }

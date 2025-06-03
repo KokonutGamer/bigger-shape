@@ -19,8 +19,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "Risk_Factor")
-public class RiskFactor {
+@Table(name = "question")
+public class Question {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -28,16 +28,16 @@ public class RiskFactor {
     private UUID id;
 
     @NonNull
-    @Column(name = "\"order\"")
-    private String order;
+    @Column(name = "order", unique= true)
+    private Long order;
 
     @ManyToOne
-    @JoinColumn(name = "question_type_id", nullable = false)
+    @JoinColumn(name = "type_id", nullable = false)
     @NonNull
     private QuestionType questionType;
 
     @NonNull
-    @Column(name = "question_content")
-    private String questionContent;
+    @Column(name = "content")
+    private String content;
 
 }

@@ -10,13 +10,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
+/* *
+ * Composite key class for QuestionOption entity
+ */
 @Embeddable
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class AnswerId implements Serializable {
-    private UUID questionnaireId;
-    private UUID questionId;
+public class QuestionOptionId implements Serializable{
+  private UUID questionId;
+  private Long order;
 }

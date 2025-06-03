@@ -17,7 +17,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "Recommendation")
+@Table(name = "recommendation")
 public class Recommendation {
 
     @Id
@@ -26,9 +26,9 @@ public class Recommendation {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "risk_factor_id", nullable = false)
+    @JoinColumn(name = "question_id", nullable = false)
     @NonNull
-    private RiskFactor riskFactor;
+    private Question question;
 
     @NonNull
     @Column(name = "website")
