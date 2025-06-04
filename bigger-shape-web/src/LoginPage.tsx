@@ -5,8 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth, supabase } from "./AuthContext";
 
 const LoginPage = () => {
-  const handleSubmit = () => {};
-
   const navigate = useNavigate();
   const auth = useAuth();
 
@@ -24,6 +22,24 @@ const LoginPage = () => {
     document.title = "Log Into SHAPE";
   }, []);
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState(false);
+
+  // Login using email and password
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+    if (error) {
+      setLoginError(true); // dynamically renders error message
+    }
+    // If successful, useEffect detects the change in auth and redirects user to /dashboard
+  };
+
+  // Hands OAuth login via Google
   const handleGoogleLogin = async () => {
     setOAuthError(false); // reset
     const { error } = await supabase.auth.signInWithOAuth({
@@ -74,6 +90,7 @@ const LoginPage = () => {
               width={5}
               height={4}
               altText="Mail"
+              onChange={(e) => setEmail(e.target.value)}
             />
             <Input
               type="password"
@@ -83,13 +100,19 @@ const LoginPage = () => {
               width={5}
               height={5}
               altText="Lock"
+              onChange={(e) => setPassword(e.target.value)}
             />
             <Button
               type="submit"
               color="green"
               text="Sign In"
-              onClick={handleSubmit}
+              onClick={(e) => handleSubmit(e)}
             />
+            {loginError && (
+              <p className="text-red-600 font-bold">
+                Incorrect username or password.
+              </p>
+            )}
           </form>
           <div className="flex items-center my-4">
             <hr className="flex-grow border-t border-black" />
@@ -127,6 +150,7 @@ interface InputProps {
   width: number;
   height: number;
   altText: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -137,6 +161,7 @@ const Input: React.FC<InputProps> = ({
   width,
   height,
   altText,
+  onChange,
 }) => {
   const inputClass =
     "pl-12 w-full rounded py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
@@ -154,7 +179,13 @@ const Input: React.FC<InputProps> = ({
           />
           <div className="h-10 w-0.5 bg-gray-300 ml-2" />
         </span>
-        <input type={type} id={id} className={inputClass} required />
+        <input
+          type={type}
+          id={id}
+          className={inputClass}
+          onChange={onChange}
+          required
+        />
       </div>
     </>
   );
