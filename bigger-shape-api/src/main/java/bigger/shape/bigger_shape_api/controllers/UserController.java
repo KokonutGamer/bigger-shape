@@ -1,5 +1,6 @@
 package bigger.shape.bigger_shape_api.controllers;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -37,6 +38,15 @@ public class UserController {
                 "userId", claims.get("sub"),
                 "email", claims.get("email"),
                 "role", claims.get("role"));
+    }
+
+    @GetMapping("/users/history")
+    public List<QuestionnaireHistoryEntryDto> getUserQuestionnaireHistory(Authentication authentication) {
+        // Get subject from authentication
+        Claims claims = (Claims) authentication.getPrincipal();
+        UUID id = UUID.fromString(claims.getSubject());
+
+        return userService.findAllQuestionnaireHistoryEntries(id);
     }
 
     /**
