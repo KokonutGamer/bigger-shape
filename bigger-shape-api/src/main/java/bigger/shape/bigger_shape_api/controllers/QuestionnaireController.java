@@ -12,9 +12,9 @@ import bigger.shape.bigger_shape_api.dtos.SubmissionRequestBodyDto;
 import bigger.shape.bigger_shape_api.responses.GetQuestionsResponse;
 import bigger.shape.bigger_shape_api.responses.RecommendationsResponse;
 import bigger.shape.bigger_shape_api.services.QuestionnaireService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
-//@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/v1")
 public class QuestionnaireController {
   @Autowired
