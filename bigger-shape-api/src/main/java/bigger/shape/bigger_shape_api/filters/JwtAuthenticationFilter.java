@@ -6,6 +6,7 @@ import java.util.Collections;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,8 +23,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtVerifierService jwtVerifierService;
 
-    public JwtAuthenticationFilter(JwtVerifierService jwtVerifierService) {
+    private final String publicEndpoint;
+
+    public JwtAuthenticationFilter(JwtVerifierService jwtVerifierService, String publicEndpoint) {
         this.jwtVerifierService = jwtVerifierService;
+        this.publicEndpoint = publicEndpoint;
     }
 
     @Override
@@ -31,6 +35,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain)
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+        AntPathMatcher pathMatcher = new AntPathMatcher();
+
+        if (pathMatcher.match(publicEndpoint, path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String header = request.getHeader("Authorization");
         if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
