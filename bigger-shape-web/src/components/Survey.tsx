@@ -201,7 +201,7 @@ function Survey() {
   const [page, setPage] = useState(0);
 
   useEffect(() => {
-    fetch('/response_forTesting.json')
+    fetch('http://localhost:8080/api/v1/public/questions')
       .then(res => res.json())
       .then(data => {
         console.log("Fetched data:", data);  // This should log your JSON object
