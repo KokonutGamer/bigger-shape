@@ -1,6 +1,7 @@
 package bigger.shape.bigger_shape_api.entities;
 
 import io.micrometer.common.lang.NonNull;
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,10 +32,19 @@ public class Recommendation {
     private Question question;
 
     @NonNull
-    @Column(name = "website")
-    private String website;
+    @Column(name="name")
+    private String name;
 
-    @Column(name = "location")
-    private String location;
+    @NonNull
+    @Column(name="description")
+    private String description;
+
+    @NonNull
+    @Column(name = "website_url")
+    private String websiteUrl;
+
+    @NonNull
+    @Column(name = "contact_url")
+    private String contactUrl;
 
 }
