@@ -3,7 +3,7 @@ import React from "react";
 interface ButtonProps {
   type: "button" | "submit";
   color: string;
-  onClick: () => void;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
   text: string;
   imagePath?: string;
   altText?: string;
