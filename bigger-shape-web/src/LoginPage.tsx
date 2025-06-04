@@ -1,35 +1,62 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import CardContainer from "./CardContainer";
 import Button from "./Button";
-
-const inputClass =
-  "pl-12 w-full rounded px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
-
-const handleSubmit = () => {};
-
-const handleGoogleLogin = () => {};
+import { useNavigate } from "react-router-dom";
+import { useAuth, supabase } from "./AuthContext";
 
 const LoginPage = () => {
-  //   If user is already logged in, redirect them to another page
+  const handleSubmit = () => {};
+
+  const navigate = useNavigate();
+  const auth = useAuth();
+
+  // Used to display an error if OAuth2 with Google fails
+  const [oAuthError, setOAuthError] = useState(false);
+
+  // If the user is already authenticated, redirect them to the dashboard
+  useEffect(() => {
+    if (!auth?.isLoading && auth?.session) {
+      navigate("/dashboard");
+    }
+  }, [auth, navigate]);
+
   useEffect(() => {
     document.title = "Log Into SHAPE";
   }, []);
-  // Things to make it look better
-  // interactive hovers or on focus for textboxes
-  // Custom error visuals
+
+  const handleGoogleLogin = async () => {
+    setOAuthError(false); // reset
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        queryParams: {
+          prompt: "select_account",
+        },
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    if (error) {
+      setOAuthError(true);
+    }
+  };
+
+  if (auth?.isLoading) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <>
       <video
+        src="/Seattle.mp4"
         autoPlay
         loop
         muted
         playsInline
         className="fixed top-0 left-0 w-full h-full object-cover -z-10"
       >
-        <source src="/Seattle.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-      <div className="w-screen max-w-full flex items-center justify-end overflow-x-hidden">
+      <div className="w-screen z-0 max-w-full flex items-center justify-end overflow-x-hidden">
         <CardContainer
           width={25}
           height={5}
@@ -77,6 +104,9 @@ const LoginPage = () => {
             imagePath="/google-logo.png"
             altText="Google logo"
           />
+          {oAuthError && (
+            <p className="text-red-600 font-bold">Error logging into Google.</p>
+          )}
           <div className="flex justify-between text-sm">
             <a href="/signup" className="text-blue-600 underline">
               Don't have an account?
@@ -108,6 +138,8 @@ const Input: React.FC<InputProps> = ({
   height,
   altText,
 }) => {
+  const inputClass =
+    "pl-12 w-full rounded py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
   return (
     <>
       <label htmlFor={id} className="text-left block">
