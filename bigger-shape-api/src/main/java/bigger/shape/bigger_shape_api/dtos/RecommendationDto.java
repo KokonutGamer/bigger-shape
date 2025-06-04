@@ -18,3 +18,4 @@ public class RecommendationDto {
     this.contactUrl = contactUrl;
   }
 }
+

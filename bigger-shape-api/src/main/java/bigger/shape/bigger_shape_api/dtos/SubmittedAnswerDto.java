@@ -12,3 +12,4 @@ public class SubmittedAnswerDto {
     this.answer = answer;
   }
 }
+
