@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import InputField from './InputField';
-import ProgressBar from './ProgressBar';
+import { useState, useEffect } from "react";
+import InputField from "./InputField";
+import ProgressBar from "./ProgressBar";
+import { useAuth } from "../AuthContext";
 
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function Survey() {
   // const pages = [
@@ -196,6 +197,8 @@ function Survey() {
   //     options: ['Partial Disabilty', 'Total Disabilty', 'Not Disabled'],
   //   },
   // ];
+
+  const auth = useAuth();
   const [questions, setQuestions] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState([]);
   const [page, setPage] = useState(0);
@@ -209,7 +212,7 @@ function Survey() {
         setSelectedAnswer(Array(data.questions.length).fill("default"));
         // console.log(questions);
       })
-      .catch(err => console.error("Fetch error:", err));
+      .catch((err) => console.error("Fetch error:", err));
   }, []);
 
   // // This will log questions every time it changes
@@ -230,7 +233,6 @@ function Survey() {
     return <h1>Loading...</h1>;
   }
 
-
   function decrePage() {
     setPage((curPage) => (curPage > 0 ? curPage - 1 : curPage));
   }
@@ -242,17 +244,64 @@ function Survey() {
   //   <InputField key={idx} {...question} />
   // ));
 
+  // Returns the body of the HTTPRequest in a JSON format
+  const getBody = () => {
+    const submissionAnswers: {
+      answerContent: string;
+      questionOrder: number;
+    }[] = [];
+    console.log("Printing out what's in session storage:");
+
+    const rawResponse = sessionStorage.getItem("response") || "[]";
+    const answersArray = JSON.parse(rawResponse);
+    // for (let i = 0; i < sessionStorage.length; i++) {
+    //   const key: string = sessionStorage.key(i);
+    //   const value = sessionStorage.getItem(key);
+    //   console.log(`key: ${key}, value: ${value}`);
+    // }
+    console.log("Done printing!");
+    for (let i = 0; i < answersArray.length; i++) {
+      const answer: string = answersArray[i];
+      submissionAnswers.push({
+        answerContent: answer,
+        questionOrder: i + 1,
+      });
+    }
+
+    return JSON.stringify({
+      questionnaire: {
+        dateTaken: new Date().toISOString(),
+        riskScore: 5,
+      },
+      answers: submissionAnswers,
+    });
+  };
+
   function handleSubmit() {
-    console.log(selectedAnswer);
+    console.log(`selected answer:${selectedAnswer}`);
     sessionStorage.setItem("response", JSON.stringify(selectedAnswer));
-    window.location.href = "/dashboard";
+    if (auth?.session?.access_token) {
+      console.log("User is authenticated! Sending API Request");
+      console.log("Request body: " + getBody());
+      fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.session.access_token}`,
+        },
+        body: getBody(),
+      })
+        .then((data) => (window.location.href = "/dashboard"))
+        .catch((error) => console.error("Error:", error));
+    } else {
+      console.log("User is not authenticated!");
+    }
   }
 
   return (
     <>
       <style>
-        {
-          `
+        {`
                 #root{
                   padding: 0;
                   margin: 0;
@@ -260,60 +309,77 @@ function Survey() {
                 body {
                     background-image: linear-gradient(to top left, #bfdbfe, #3b82f6);
                 }    
-                `
-        }
+                `}
       </style>
 
-
-      <div className="w-[90vh] h-[50vh] flex flex-col p-[5vh] bg-gradient-to-br from-blue-200 to-blue-500
+      <div
+        className="w-[90vh] h-[50vh] flex flex-col p-[5vh] bg-gradient-to-br from-blue-200 to-blue-500
             rounded-lg
             text-black
             shadow-md
            justify-center
-            ">
+            "
+      >
         {/* <h1 className="text-center text-3xl font-bold mb-4">{pages[page].title}</h1> */}
-        <ProgressBar percent={page / (questions.length) * 100} />
-        {
-          page === questions.length ?
-            (<div className="flex items-center justify-center h-[50%]">
-              <h1 className="text-center text-3xl font-bold mb-4 text-white">Survey Completed!</h1>
-            </div>) : (
-              <div className="flex flex-col justify-center h-[50%]">
+        <ProgressBar percent={(page / questions.length) * 100} />
+        {page === questions.length ? (
+          <div className="flex items-center justify-center h-[50%]">
+            <h1 className="text-center text-3xl font-bold mb-4 text-white">
+              Survey Completed!
+            </h1>
+          </div>
+        ) : (
+          <div className="flex flex-col justify-center h-[50%]">
+            <InputField
+              // {...questions[page]}
 
-                <InputField
-                  // {...questions[page]}
-
-                  type={questions[page]["type"]}
-                  id={questions[page]["id"]}
-                  label={questions[page]["label"]}
-                  options={questions[page]["options"]}
-
-                  currentValue={selectedAnswer[page]}
-                  setCurrentValue={(value) => {
-                    setSelectedAnswer(prev => {
-                      const updated = [...prev];
-                      updated[page] = value;
-                      return updated;
-                    });
-                  }}
-                />
-
-              </div>
-            )
-
-        }
-        <div className="flex space-x-4 justify-center mb-4 h-[10%]" >
-          <p className='text-white' hidden={selectedAnswer[page] !== "default"}>Select an option to continue</p>
+              type={questions[page]["type"]}
+              id={questions[page]["id"]}
+              label={questions[page]["label"]}
+              options={questions[page]["options"]}
+              currentValue={selectedAnswer[page]}
+              setCurrentValue={(value) => {
+                setSelectedAnswer((prev) => {
+                  const updated = [...prev];
+                  updated[page] = value;
+                  return updated;
+                });
+              }}
+            />
+          </div>
+        )}
+        <div className="flex space-x-4 justify-center mb-4 h-[10%]">
+          <p className="text-white" hidden={selectedAnswer[page] !== "default"}>
+            Select an option to continue
+          </p>
         </div>
 
         <div className="flex space-x-4 justify-center">
-          <button onClick={decrePage} className="px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-200 text-white " hidden={page === 0}>Prev</button>
-          <button onClick={increPage} className="px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-200 text-white " hidden={page === questions.length || selectedAnswer[page] === "default"}>Next</button>
-          <button onClick={handleSubmit} className="px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-200 text-white " hidden={page !== questions.length}>Submit</button>
+          <button
+            onClick={decrePage}
+            className="px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-200 text-white "
+            hidden={page === 0}
+          >
+            Prev
+          </button>
+          <button
+            onClick={increPage}
+            className="px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-200 text-white "
+            hidden={
+              page === questions.length || selectedAnswer[page] === "default"
+            }
+          >
+            Next
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-200 text-white "
+            hidden={page !== questions.length}
+          >
+            Submit
+          </button>
         </div>
       </div>
-
-
     </>
   );
 }
