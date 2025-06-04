@@ -244,40 +244,59 @@ function Survey() {
   //   <InputField key={idx} {...question} />
   // ));
 
+  // Returns the body of the HTTPRequest in a JSON format
+  const getBody = () => {
+    const submissionAnswers: {
+      answerContent: string;
+      questionOrder: number;
+    }[] = [];
+    console.log("Printing out what's in session storage:");
+
+    const rawResponse = sessionStorage.getItem("response") || "[]";
+    const answersArray = JSON.parse(rawResponse);
+    // for (let i = 0; i < sessionStorage.length; i++) {
+    //   const key: string = sessionStorage.key(i);
+    //   const value = sessionStorage.getItem(key);
+    //   console.log(`key: ${key}, value: ${value}`);
+    // }
+    console.log("Done printing!");
+    for (let i = 0; i < answersArray.length; i++) {
+      const answer: string = answersArray[i];
+      submissionAnswers.push({
+        answerContent: answer,
+        questionOrder: i + 1,
+      });
+    }
+
+    return JSON.stringify({
+      questionnaire: {
+        dateTaken: new Date().toISOString(),
+        riskScore: 5,
+      },
+      answers: submissionAnswers,
+    });
+  };
+
   function handleSubmit() {
-    console.log(selectedAnswer);
+    console.log(`selected answer:${selectedAnswer}`);
     sessionStorage.setItem("response", JSON.stringify(selectedAnswer));
     if (auth?.session?.access_token) {
       console.log("User is authenticated! Sending API Request");
+      console.log("Request body: " + getBody());
       fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${auth.session.access_token}`,
         },
-        body: JSON.stringify({
-          questionnaire: {
-            dateTaken: "2025-06-03T12:00:00Z",
-            riskScore: 5,
-          },
-          answers: [
-            {
-              answerContent: "0$ - 50$",
-              questionOrder: 1,
-            },
-          ],
-        }),
+        body: getBody(),
       })
-        .then((response) => response.json())
-        .then((data) => console.log("Success:", data))
+        .then((data) => (window.location.href = "/dashboard"))
         .catch((error) => console.error("Error:", error));
     } else {
       console.log("User is not authenticated!");
     }
-    // window.location.href = "/dashboard";
   }
-
-  const getBody = {};
 
   return (
     <>
