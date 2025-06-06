@@ -39,15 +39,11 @@ function Survey() {
       answerContent: string;
       questionOrder: number;
     }[] = [];
-    console.log("Printing out what's in session storage:");
-
-    const rawResponse = sessionStorage.getItem("response") || "[]";
-    const answersArray = JSON.parse(rawResponse);
-    console.log("Done printing!");
-    for (let i = 0; i < answersArray.length; i++) {
-      const answer: string = answersArray[i];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const value = sessionStorage.getItem(`question-${i}`);
+      const answerData = JSON.parse(value);
       submissionAnswers.push({
-        answerContent: answer,
+        answerContent: answerData.answerValue,
         questionOrder: i + 1,
       });
     }
@@ -62,8 +58,6 @@ function Survey() {
   };
 
   function handleSubmit() {
-    console.log(`selected answer:${selectedAnswer}`);
-    sessionStorage.setItem("response", JSON.stringify(selectedAnswer));
     if (auth?.session?.access_token) {
       console.log("User is authenticated! Sending API Request");
       console.log("Request body: " + getBody());
@@ -75,7 +69,7 @@ function Survey() {
         },
         body: getBody(),
       })
-        .then((data) => "") // window.location.href = "/dashboard")
+        .then((data) => (window.location.href = "/dashboard"))
         .catch((error) => console.error("Error:", error));
     } else {
       console.log("User is not authenticated!");
@@ -127,9 +121,15 @@ function Survey() {
                   const options = questions[page].options;
                   // Get the index of the selected dropdown value
                   const selectedSupabaseIndex = options.indexOf(value) + 1;
+                  const answerData = {
+                    questionId: questions[page]["id"],
+                    answerIndex: selectedSupabaseIndex,
+                    answerValue: value,
+                    questionOrder: page + 1,
+                  };
                   sessionStorage.setItem(
-                    questions[page]["id"],
-                    selectedSupabaseIndex
+                    `question-${page}`,
+                    JSON.stringify(answerData)
                   );
                   return updated;
                 });
