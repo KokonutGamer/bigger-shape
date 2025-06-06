@@ -41,6 +41,9 @@ function Survey() {
     }[] = [];
     for (let i = 0; i < sessionStorage.length; i++) {
       const value = sessionStorage.getItem(`question-${i}`);
+      if (!value) {
+        continue;
+      }
       const answerData = JSON.parse(value);
       submissionAnswers.push({
         answerContent: answerData.answerValue,
@@ -64,6 +67,9 @@ function Survey() {
     }[] = [];
     for (let i = 0; i < sessionStorage.length; i++) {
       const value = sessionStorage.getItem(`question-${i}`);
+      if (!value) {
+        continue;
+      }
       const answerData = JSON.parse(value);
       submissionAnswers.push({
         questionId: answerData.questionId,
