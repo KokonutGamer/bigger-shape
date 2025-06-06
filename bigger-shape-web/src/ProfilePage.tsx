@@ -20,7 +20,8 @@ const ProfilePage = () => {
   // survey page. To view the dashboard, they must have at least one submission.
   // Hmm... are we allowing the user to delete previous submissions?
 
-  const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
+  const numberOfSubmissions = 3;
+  // const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
   // Query the questionnaire submissions related to each specific account
   // Each submission has their own ID, which can be stored as a URL parameter (11.10)
 
@@ -81,7 +82,6 @@ const ProfilePage = () => {
       if (auth.session?.user.user_metadata.avatar_url) {
         profilePicture = auth.session.user.user_metadata.avatar_url;
       }
-      console.log(`Profile picture: ${profilePicture}`);
       let email;
       if (auth.session?.user.user_metadata.email) {
         email = auth.session.user.user_metadata.email;
@@ -146,29 +146,20 @@ const ProfilePage = () => {
     );
   };
 
-  // Probably have a fetch here that will get all the resources
+  // Loads all the recommendation cards from sessionStorage
   const loadResources = () => {
     setResources([]);
-    const hardCodedResources = [
-      {
-        name: "Homeless shelter program",
-        description:
-          "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas.",
-        contact: "somelink.com",
-        info: "somelink.com",
-      },
-      {
-        name: "Homeless shelter program2",
-        description:
-          "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas.",
-        contact: "somelink2.com",
-        info: "somelink2.com",
-      },
-    ];
-
+    const recommendationsString = sessionStorage.getItem("recommendations");
+    if (!recommendationsString) {
+      return;
+    }
+    const recommendations = JSON.parse(recommendationsString).recommendations;
+    if (recommendations.length === 0) {
+      return;
+    }
     // Traverse through the fetched JSON and create a card for each resource
     const resourceCards = [];
-    for (let i = 0; i < hardCodedResources.length; i++) {
+    for (let i = 0; i < recommendations.length; i++) {
       resourceCards.push(
         <CardContainer
           key={`resources${i}`}
@@ -178,25 +169,31 @@ const ProfilePage = () => {
           toColor="gray-100"
           className="flex-col max-w-md"
         >
-          <p className="font-bold text-lg">{hardCodedResources[i].name}</p>
-          <p>{hardCodedResources[i].description}</p>
+          <p className="font-bold text-lg">{recommendations[i].name}</p>
+          <p>{recommendations[i].description}</p>
           <span className="flex flex-row justify-center space-x-10">
             <Button
               type="button"
               color="red"
               text="Contact Now"
-              onClick={() =>
-                window.open(hardCodedResources[i].contact, "_blank")
+              onClick={() => {
+                window.open(recommendations[i].contactUrl, "_blank");
+                return;
+              }
               }
             ></Button>
             <Button
               type="button"
               color="red"
               text="Learn More"
-              onClick={() => window.open(hardCodedResources[i].info, "_blank")}
+              onClick={() => {
+                window.open(recommendations[i].websiteUrl, "_blank");
+                return;
+              }
+              }
             ></Button>
           </span>
-        </CardContainer>
+        </CardContainer >
       );
     }
     setResources(resourceCards);
@@ -224,12 +221,18 @@ const ProfilePage = () => {
           toColor="blue-500"
           className="flex-col justify-evenly overflow-y-auto max-h-96 overscroll-contain flex-grow"
         >
-          {/* So I'm trying to figure out to relate survey risk with the resources
-          since they're two different tables.
-          */}
-          <p className="text-xl font-bold">Survey Results</p>
-          <p className="text-lg">Risk Level: 1/10 </p>
-          {resources}
+          {resources.length === 0 ? (
+            <>
+              <p className="font-bold text-lg">No recommendations found</p>
+              <p>Fill out a survey to get recommendations!</p>
+            </>
+          ) : (
+            <>
+              <p className="text-xl font-bold">Survey Results</p>
+              <p className="text-lg">Risk Level: 1/10 </p>
+              {resources}
+            </>
+          )}
         </CardContainer>
       </CardContainer>
       <HistoryModal

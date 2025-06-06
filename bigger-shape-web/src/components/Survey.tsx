@@ -20,10 +20,10 @@ function Survey() {
   const [page, setPage] = useState<number>(0);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/v1/public/questions')
-      .then(res => res.json())
-      .then(data => {
-        console.log("Fetched data:", data);  // This should log your JSON object
+    fetch(`${API_BASE_URL}/api/v1/public/questions`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Fetched data:", data); // This should log your JSON object
         setQuestions(data.questions);
         setSelectedAnswer(Array(data.questions.length).fill("default"));
       })
@@ -44,26 +44,23 @@ function Survey() {
     );
   }
 
-  // Returns the body of the HTTPRequest in a JSON format
-  const getBody = () => {
+  // Returns the body of the HTTPRequest for /api/v1/auth/users/history in a JSON format
+  const getHistoryRequestBody = () => {
     const submissionAnswers: {
       answerContent: string;
       questionOrder: number;
     }[] = [];
-    console.log("Printing out what's in session storage:");
-
-    const rawResponse = sessionStorage.getItem("response") || "[]";
-    const answersArray = JSON.parse(rawResponse);
-
-    console.log("Done printing!");
-    for (let i = 0; i < answersArray.length; i++) {
-      const answer: string = answersArray[i];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const value = sessionStorage.getItem(`question-${i}`);
+      if (!value) {
+        continue;
+      }
+      const answerData = JSON.parse(value);
       submissionAnswers.push({
-        answerContent: answer,
+        answerContent: answerData.answerValue,
         questionOrder: i + 1,
       });
     }
-
     return JSON.stringify({
       questionnaire: {
         dateTaken: new Date().toISOString(),
@@ -73,25 +70,53 @@ function Survey() {
     });
   };
 
+  // Returns the body of the HTTPRequest for /api/v1/auth/users/history in a JSON format
+  const getRecommendationsRequestBody = () => {
+    const submissionAnswers: {
+      questionId: string;
+      answer: number;
+    }[] = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const value = sessionStorage.getItem(`question-${i}`);
+      if (!value) {
+        continue;
+      }
+      const answerData = JSON.parse(value);
+      submissionAnswers.push({
+        questionId: answerData.questionId,
+        answer: answerData.answerIndex,
+      });
+    }
+    return JSON.stringify({
+      answers: submissionAnswers,
+    });
+  };
+
   function handleSubmit() {
-    console.log(`selected answer:${selectedAnswer}`);
-    sessionStorage.setItem("response", JSON.stringify(selectedAnswer));
     if (auth?.session?.access_token) {
-      console.log("User is authenticated! Sending API Request");
-      console.log("Request body: " + getBody());
       fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${auth.session.access_token}`,
         },
-        body: getBody(),
-      })
-        .then((_data) => (window.location.href = "/dashboard"))
-        .catch((error) => console.error("Error:", error));
+        body: getHistoryRequestBody(),
+      }).catch((error) => console.error("Error:", error));
     } else {
-      console.log("User is not authenticated!");
+      // Error handling
     }
+    fetch(`${API_BASE_URL}/api/v1/public/submit-answers`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: getRecommendationsRequestBody(),
+    })
+      .then((response) => response.json())
+      .then((body) => {
+        sessionStorage.setItem("recommendations", JSON.stringify(body));
+      })
+      .then(() => (window.location.href = "/dashboard"));
   }
 
   return (
@@ -136,6 +161,19 @@ function Survey() {
                 setSelectedAnswer((prev) => {
                   const updated = [...prev];
                   updated[page] = value;
+                  const options = questions[page].options;
+                  // Get the index of the selected dropdown value
+                  const selectedSupabaseIndex = options.indexOf(value) + 1;
+                  const answerData = {
+                    questionId: questions[page]["id"],
+                    answerIndex: selectedSupabaseIndex,
+                    answerValue: value,
+                    questionOrder: page + 1,
+                  };
+                  sessionStorage.setItem(
+                    `question-${page}`,
+                    JSON.stringify(answerData)
+                  );
                   return updated;
                 });
               }}
