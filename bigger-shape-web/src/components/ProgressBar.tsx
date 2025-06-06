@@ -1,4 +1,8 @@
-function ProgressBar(props) {
+type ProgressBarProps = {
+    percent: number;
+};
+
+function ProgressBar(props: ProgressBarProps) {
     // console.log(props.progress);
     return (
         <>

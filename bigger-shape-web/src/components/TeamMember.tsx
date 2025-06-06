@@ -1,4 +1,10 @@
-function TeamMember(props) {
+type TeamMemberProps = {
+    name: string;
+    github: string;
+    linkedin: string;
+};
+
+function TeamMember(props: TeamMemberProps) {
     return (
         <>
             <div className="flex justify-center items-center w-[100%]">

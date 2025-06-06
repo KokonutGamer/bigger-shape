@@ -1,18 +1,39 @@
+import React, { type ChangeEvent } from "react";
+
+type SizeRange = {
+  min: number;
+  max: number;
+};
+
+type InputFieldProps = {
+  type: string;
+  id: string;
+  label: string;
+  options?: string[] | null;
+  requiredField?: boolean;
+  regex?: RegExp;
+  setIsValidInput?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  sizeRange?: SizeRange;
+  setIsValidLength?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  setCurrentValue: (value: string) => void;
+  currentValue?: string;
+};
+
 function InputField({
   type,
   id,
   label,
-  options,
-  requiredField,
+  options = null,
+  requiredField = false,
   regex,
   setIsValidInput,
   sizeRange,
   setIsValidLength,
   setCurrentValue,
-  currentValue,
-}) {
-  function checkInput(event) {
-    if (sizeRange) {
+  currentValue = "",
+}: InputFieldProps) {
+  function checkInput(event: ChangeEvent<HTMLInputElement>) {
+    if (sizeRange && setIsValidLength) {
       if (
         event.target.value.length < sizeRange.min ||
         event.target.value.length > sizeRange.max
@@ -28,27 +49,29 @@ function InputField({
         }));
       }
     }
-    // console.log("keyup");
     const value = event.target.value;
-    if (!requiredField && value === "") {
-      setIsValidInput((prevState) => ({
-        ...prevState,
-        [id]: true,
-      }));
-    } else if (regex) {
-      setIsValidInput((prevState) => ({
-        ...prevState,
-        [id]: regex.test(value),
-      }));
+    if (setIsValidInput) {
+      if (!requiredField && value === "") {
+        setIsValidInput((prevState) => ({
+          ...prevState,
+          [id]: true,
+        }));
+      } else if (regex) {
+        setIsValidInput((prevState) => ({
+          ...prevState,
+          [id]: regex.test(value),
+        }));
+      }
     }
   }
 
-  function updateCurrentValue(event) {
+  function updateCurrentValue(
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) {
     setCurrentValue(event.target.value);
   }
 
   const labelClass = "text-left pb-[2vh]";
-  // console.log(type, id, label, options);
   switch (type.toLowerCase()) {
     case "text":
     case "password":
@@ -64,7 +87,7 @@ function InputField({
             className="bg-white rounded text-center"
             required={requiredField}
             onChange={(e) => {
-              checkInput(e);
+              checkInput(e as ChangeEvent<HTMLInputElement>);
               updateCurrentValue(e);
             }}
           ></input>
@@ -101,6 +124,8 @@ function InputField({
           <br />
         </>
       );
+    default:
+      return null;
   }
 }
 

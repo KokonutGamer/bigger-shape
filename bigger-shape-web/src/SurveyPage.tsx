@@ -1,4 +1,3 @@
-import React from "react";
 import Survey from "./components/Survey";
 import NavBar from "./components/NavBar";
 
