@@ -33,8 +33,8 @@ function Survey() {
     setPage((curPage) => (curPage < questions.length ? curPage + 1 : curPage));
   }
 
-  // Returns the body of the HTTPRequest in a JSON format
-  const getBody = () => {
+  // Returns the body of the HTTPRequest for /api/v1/auth/users/history in a JSON format
+  const getHistoryRequestBody = () => {
     const submissionAnswers: {
       answerContent: string;
       questionOrder: number;
@@ -47,7 +47,6 @@ function Survey() {
         questionOrder: i + 1,
       });
     }
-
     return JSON.stringify({
       questionnaire: {
         dateTaken: new Date().toISOString(),
@@ -57,23 +56,51 @@ function Survey() {
     });
   };
 
+  // Returns the body of the HTTPRequest for /api/v1/auth/users/history in a JSON format
+  const getRecommendationsRequestBody = () => {
+    const submissionAnswers: {
+      questionId: string;
+      answer: number;
+    }[] = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const value = sessionStorage.getItem(`question-${i}`);
+      const answerData = JSON.parse(value);
+      submissionAnswers.push({
+        questionId: answerData.questionId,
+        answer: answerData.answerIndex,
+      });
+    }
+    return JSON.stringify({
+      answers: submissionAnswers,
+    });
+  };
+
   function handleSubmit() {
     if (auth?.session?.access_token) {
-      console.log("User is authenticated! Sending API Request");
-      console.log("Request body: " + getBody());
       fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${auth.session.access_token}`,
         },
-        body: getBody(),
+        body: getHistoryRequestBody(),
       })
-        .then((data) => (window.location.href = "/dashboard"))
+        .then((data) => "")
         .catch((error) => console.error("Error:", error));
     } else {
-      console.log("User is not authenticated!");
+      // Error handling
     }
+    fetch(`${API_BASE_URL}/api/v1/public/submit-answers`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: getRecommendationsRequestBody(),
+    })
+      .then((response) => response.json())
+      .then((body) => console.log(body));
+
+    // window.location.href = "/dashboard"
   }
 
   return (
