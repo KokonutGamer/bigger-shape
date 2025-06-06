@@ -216,9 +216,18 @@ const ProfilePage = () => {
           toColor="blue-500"
           className="flex-col justify-evenly overflow-y-auto max-h-96 overscroll-contain flex-grow"
         >
-          <p className="text-xl font-bold">Survey Results</p>
-          <p className="text-lg">Risk Level: 1/10 </p>
-          {resources}
+          {resources.length === 0 ? (
+            <>
+              <p className="font-bold text-lg">No recommendations found</p>
+              <p>Fill out a survey to get recommendations!</p>
+            </>
+          ) : (
+            <>
+              <p className="text-xl font-bold">Survey Results</p>
+              <p className="text-lg">Risk Level: 1/10 </p>
+              {resources}
+            </>
+          )}
         </CardContainer>
       </CardContainer>
       <HistoryModal
