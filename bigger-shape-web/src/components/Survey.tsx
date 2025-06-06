@@ -84,9 +84,7 @@ function Survey() {
           Authorization: `Bearer ${auth.session.access_token}`,
         },
         body: getHistoryRequestBody(),
-      })
-        .then((data) => "")
-        .catch((error) => console.error("Error:", error));
+      }).catch((error) => console.error("Error:", error));
     } else {
       // Error handling
     }
@@ -98,9 +96,10 @@ function Survey() {
       body: getRecommendationsRequestBody(),
     })
       .then((response) => response.json())
-      .then((body) => console.log(body));
-
-    // window.location.href = "/dashboard"
+      .then((body) => {
+        sessionStorage.setItem("recommendations", JSON.stringify(body));
+      })
+      .then(() => (window.location.href = "/dashboard"));
   }
 
   return (
