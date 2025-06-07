@@ -2,232 +2,27 @@ import { useState, useEffect } from "react";
 import InputField from "./InputField";
 import ProgressBar from "./ProgressBar";
 import { useAuth } from "../AuthContext";
+import { useSurveySubmit } from "../useSurveySubmit";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function Survey() {
-  // const pages = [
-  // {
-  //   title: 'Income / Zip',
-  //   fields: [
-  //     {
-  //       type: 'select',
-  //       id: 'income',
-  //       label: 'Yearly Income: ',
-  //       options: [
-  //         '0$ - 10,000$',
-  //         '10,001$ - 20,000$',
-  //         '20,001$ - 40,000$',
-  //         '40,001$ - 60,000$',
-  //         '60,001$ - 80,000$',
-  //         '80,001$ - 100,000$',
-  //         '100,001$ - 250,000$',
-  //         '250,000$+',
-  //       ],
-  //     },
-  //     {
-  //       type: 'select',
-  //       id: 'zipCode',
-  //       label: 'ZipCode: ',
-  //       options: [
-  //         '98101', '98102', '98103', '98104', '98105', '98106', '98107',
-  //         '98108', '98109', '98112', '98113', '98115', '98116', '98117',
-  //         '98118', '98119', '98121', '98122', '98125', '98126', '98133',
-  //         '98134', '98136', '98141', '98144', '98146', '98154', '98161',
-  //         '98165', '98170', '98174', '98175', '98177', '98178', '98181',
-  //         '98185', '98190', '98191', '98194', '98199',
-  //       ],
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: 'Expenses',
-  //   fields: [
-  //     {
-  //       type: 'select',
-  //       id: 'foodCost',
-  //       label: 'Monthly Food Spending: ',
-  //       options: ['0$ - 50$', '51$ - 100$', '101$ - 200$', '201$ - 500$', '500$+'],
-  //     },
-  //     {
-  //       type: 'select',
-  //       id: 'rentCost',
-  //       label: 'Monthly Rent Amount: ',
-  //       options: [
-  //         '0$ - 500$', '501$ - 1,000$', '1,001$ - 2,000$', '2,001$ - 3,000$',
-  //         '3,001$ - 4,000$', '4,001$ - 5,000$', '5,000$+',
-  //       ],
-  //     },
-  //     {
-  //       type: 'select',
-  //       id: 'addtionalCost',
-  //       label: 'Monthly Additional Spending: ',
-  //       options: [
-  //         '0$ - 250$', '251$ - 500$', '501$ - 1,000$', '1,001$ - 1,500$',
-  //         '1,501$ - 2,000$', '2,001$ - 3,000$', '3,001$ - 4,000$',
-  //         '4,001$ - 5,000$', '5,000$+',
-  //       ],
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: 'Family Info',
-  //   fields: [
-  //     {
-  //       type: 'select',
-  //       id: 'numDependents',
-  //       label: 'Number Of Dependents: ',
-  //       options: ['1', '2', '3', '4', '5+'],
-  //     },
-  //     {
-  //       type: 'select',
-  //       id: 'familyNearBy',
-  //       label: 'Do you have family who can provide support within 100 miles: ',
-  //       options: ['Yes', 'No'],
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: 'Personal Information',
-  //   fields: [
-  //     {
-  //       type: 'select',
-  //       id: 'age',
-  //       label: 'Age Range (Years): ',
-  //       options: ['Under 18', '19-25', '26-30', '30-40', '50+'],
-  //     },
-  //     {
-  //       type: 'select',
-  //       id: 'drinkAmmount',
-  //       label: 'Average Drinks Per Week: ',
-  //       options: ['1-2', '3-4', '5-6', '5+'],
-  //     },
-  //     {
-  //       type: 'select',
-  //       id: 'disabilityStatus',
-  //       label: 'Disability Status: ',
-  //       options: ['Partial Disabilty', 'Total Disabilty', 'Not Disabled'],
-  //     },
-  //   ],
-  // },
-  // ];
-
-  // const questions = [
-  //   {
-  //     type: 'select',
-  //     id: 'income',
-  //     label: 'Yearly Income:',
-  //     options: [
-  //       '0$ - 10,000$',
-  //       '10,001$ - 20,000$',
-  //       '20,001$ - 40,000$',
-  //       '40,001$ - 60,000$',
-  //       '60,001$ - 80,000$',
-  //       '80,001$ - 100,000$',
-  //       '100,001$ - 250,000$',
-  //       '250,000$+',
-  //     ],
-  //   },
-  //   {
-  //     type: 'select',
-  //     id: 'zipCode',
-  //     label: 'ZipCode:',
-  //     options: [
-  //       '98101', '98102', '98103', '98104', '98105', '98106', '98107',
-  //       '98108', '98109', '98112', '98113', '98115', '98116', '98117',
-  //       '98118', '98119', '98121', '98122', '98125', '98126', '98133',
-  //       '98134', '98136', '98141', '98144', '98146', '98154', '98161',
-  //       '98165', '98170', '98174', '98175', '98177', '98178', '98181',
-  //       '98185', '98190', '98191', '98194', '98199',
-  //     ],
-  //   },
-  //   {
-  //     type: 'select',
-  //     id: 'foodCost',
-  //     label: 'Monthly Food Spending:',
-  //     options: ['0$ - 50$', '51$ - 100$', '101$ - 200$', '201$ - 500$', '500$+'],
-  //   },
-  //   {
-  //     type: 'select',
-  //     id: 'rentCost',
-  //     label: 'Monthly Rent Amount:',
-  //     options: [
-  //       '0$ - 500$', '501$ - 1,000$', '1,001$ - 2,000$', '2,001$ - 3,000$',
-  //       '3,001$ - 4,000$', '4,001$ - 5,000$', '5,000$+',
-  //     ],
-  //   },
-  //   {
-  //     type: 'select',
-  //     id: 'addtionalCost',
-  //     label: 'Monthly Additional Spending:',
-  //     options: [
-  //       '0$ - 250$', '251$ - 500$', '501$ - 1,000$', '1,001$ - 1,500$',
-  //       '1,501$ - 2,000$', '2,001$ - 3,000$', '3,001$ - 4,000$',
-  //       '4,001$ - 5,000$', '5,000$+',
-  //     ],
-  //   },
-  //   {
-  //     type: 'select',
-  //     id: 'numDependents',
-  //     label: 'Number Of Dependents:',
-  //     options: ['1', '2', '3', '4', '5+'],
-  //   },
-  //   {
-  //     type: 'select',
-  //     id: 'familyNearBy',
-  //     label: 'Do you have family who can provide support within 100 miles:',
-  //     options: ['Yes', 'No'],
-  //   },
-  //   {
-  //     type: 'select',
-  //     id: 'age',
-  //     label: 'Age Range (Years):',
-  //     options: ['Under 18', '19-25', '26-30', '30-40', '50+'],
-  //   },
-  //   {
-  //     type: 'select',
-  //     id: 'drinkAmmount',
-  //     label: 'Average Drinks Per Week:',
-  //     options: ['1-2', '3-4', '5-6', '5+'],
-  //   },
-  //   {
-  //     type: 'select',
-  //     id: 'disabilityStatus',
-  //     label: 'Disability Status:',
-  //     options: ['Partial Disabilty', 'Total Disabilty', 'Not Disabled'],
-  //   },
-  // ];
-
   const auth = useAuth();
   const [questions, setQuestions] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState([]);
   const [page, setPage] = useState(0);
+  const { handleSubmit } = useSurveySubmit();
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/v1/public/questions')
-      .then(res => res.json())
-      .then(data => {
-        console.log("Fetched data:", data);  // This should log your JSON object
+    fetch(`${API_BASE_URL}/api/v1/public/questions`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Fetched data:", data); // This should log your JSON object
         setQuestions(data.questions);
         setSelectedAnswer(Array(data.questions.length).fill("default"));
-        // console.log(questions);
       })
       .catch((err) => console.error("Fetch error:", err));
   }, []);
-
-  // // This will log questions every time it changes
-  // useEffect(() => {
-  //   console.log("Questions updated:", questions);
-  //   if (questions) {
-
-  //     console.log("Page:", page);
-  //     console.log("Type:", questions[page]["type"]);
-  //     console.log("ID:", questions[page]["id"]);
-  //     console.log("Label:", questions[page]["label"]);
-  //     console.log("Options:", questions[page]["options"]);
-  //   }
-
-  // }, [questions]);
 
   if (!questions) {
     return <h1>Loading...</h1>;
@@ -238,64 +33,6 @@ function Survey() {
   }
   function increPage() {
     setPage((curPage) => (curPage < questions.length ? curPage + 1 : curPage));
-  }
-
-  // const jsx = pages[page].fields.map((question, idx) => (
-  //   <InputField key={idx} {...question} />
-  // ));
-
-  // Returns the body of the HTTPRequest in a JSON format
-  const getBody = () => {
-    const submissionAnswers: {
-      answerContent: string;
-      questionOrder: number;
-    }[] = [];
-    console.log("Printing out what's in session storage:");
-
-    const rawResponse = sessionStorage.getItem("response") || "[]";
-    const answersArray = JSON.parse(rawResponse);
-    // for (let i = 0; i < sessionStorage.length; i++) {
-    //   const key: string = sessionStorage.key(i);
-    //   const value = sessionStorage.getItem(key);
-    //   console.log(`key: ${key}, value: ${value}`);
-    // }
-    console.log("Done printing!");
-    for (let i = 0; i < answersArray.length; i++) {
-      const answer: string = answersArray[i];
-      submissionAnswers.push({
-        answerContent: answer,
-        questionOrder: i + 1,
-      });
-    }
-
-    return JSON.stringify({
-      questionnaire: {
-        dateTaken: new Date().toISOString(),
-        riskScore: 5,
-      },
-      answers: submissionAnswers,
-    });
-  };
-
-  function handleSubmit() {
-    console.log(`selected answer:${selectedAnswer}`);
-    sessionStorage.setItem("response", JSON.stringify(selectedAnswer));
-    if (auth?.session?.access_token) {
-      console.log("User is authenticated! Sending API Request");
-      console.log("Request body: " + getBody());
-      fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.session.access_token}`,
-        },
-        body: getBody(),
-      })
-        .then((data) => (window.location.href = "/dashboard"))
-        .catch((error) => console.error("Error:", error));
-    } else {
-      console.log("User is not authenticated!");
-    }
   }
 
   return (
@@ -331,8 +68,6 @@ function Survey() {
         ) : (
           <div className="flex flex-col justify-center h-[50%]">
             <InputField
-              // {...questions[page]}
-
               type={questions[page]["type"]}
               id={questions[page]["id"]}
               label={questions[page]["label"]}
@@ -342,6 +77,19 @@ function Survey() {
                 setSelectedAnswer((prev) => {
                   const updated = [...prev];
                   updated[page] = value;
+                  const options = questions[page].options;
+                  // Get the index of the selected dropdown value
+                  const selectedSupabaseIndex = options.indexOf(value) + 1;
+                  const answerData = {
+                    questionId: questions[page]["id"],
+                    answerIndex: selectedSupabaseIndex,
+                    answerValue: value,
+                    questionOrder: page + 1,
+                  };
+                  sessionStorage.setItem(
+                    `question-${page}`,
+                    JSON.stringify(answerData)
+                  );
                   return updated;
                 });
               }}
