@@ -5,20 +5,25 @@ import { useNavigate } from "react-router-dom";
 import HistoryModal from "./HistoryModal";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./AuthContext";
+import { useSurveySubmit } from "./useSurveySubmit";
 
 const ProfilePage = () => {
   // Used to redirect the user to another page
   const navigate = useNavigate();
   const auth = useAuth();
+  const { handleSubmit: handleSurveySubmit } = useSurveySubmit();
 
-  // If user is not yet logged in, redirect them to login page
   useEffect(() => {
     loadCorrectProfile();
   }, []);
 
-  // If the user has not yet submitted a questionnaire, redirect them to the
-  // survey page. To view the dashboard, they must have at least one submission.
-  // Hmm... are we allowing the user to delete previous submissions?
+  useEffect(() => {
+    const isUploaded = localStorage.getItem("uploaded");
+    if (isUploaded === "false" && auth?.session) {
+      handleSurveySubmit();
+      localStorage.setItem("uploaded", "true");
+    }
+  }, [auth?.session, handleSurveySubmit]);
 
   const numberOfSubmissions = 3;
   // const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
@@ -52,6 +57,8 @@ const ProfilePage = () => {
     if (error) {
       // error handling
     } else {
+      sessionStorage.clear();
+      localStorage.setItem("uploaded", "false");
       navigate("/login");
     }
   };
