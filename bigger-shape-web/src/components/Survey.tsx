@@ -13,9 +13,23 @@ type Question = {
   options: string[];
 };
 
+/**
+ * A Survey component that fetches questions from the API and renders an
+ * InputField component for each question. The user can select an answer
+ * for each question and navigate through the survey using the Prev and Next
+ * buttons. The Submit button is only visible when the user has answered all
+ * the questions, and clicking it will submit the answers to the API.
+ *
+ * The component uses the useState and useEffect hooks to fetch the questions
+ * from the API and store the user's answers in the component's state. The
+ * component also uses the useSurveySubmit hook to handle the submission of
+ * the answers to the API.
+ *
+ * @returns {ReactElement} The rendered Survey component.
+ */
 function Survey() {
-  const [questions, setQuestions] = useState<Question[] | null>(null);
-  const [selectedAnswer, setSelectedAnswer] = useState<string[]>([]);
+  const [questions, setQuestions] = useState<Question[] | null>(null); //questions to be fetched
+  const [selectedAnswer, setSelectedAnswer] = useState<string[]>([]); //user answers
   const [page, setPage] = useState(0);
   const { handleSubmit } = useSurveySubmit();
 
@@ -47,6 +61,7 @@ function Survey() {
   return (
     <>
       <style>
+        {/*fixing issue from using vite*/}
         {`
                 #root{
                   padding: 0;
@@ -66,7 +81,6 @@ function Survey() {
            justify-center
             "
       >
-        {/* <h1 className="text-center text-3xl font-bold mb-4">{pages[page].title}</h1> */}
         <ProgressBar percent={(page / questions.length) * 100} />
         {page === questions.length ? (
           <div className="flex items-center justify-center h-[50%]">
@@ -106,6 +120,7 @@ function Survey() {
           </div>
         )}
         <div className="flex space-x-4 justify-center mb-4 h-[10%]">
+          { /*this message only appears when the user has not selected an option*/}
           <p className="text-white" hidden={selectedAnswer[page] !== "default"}>
             Select an option to continue
           </p>

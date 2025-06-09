@@ -2,8 +2,13 @@ type ProgressBarProps = {
     percent: number;
 };
 
+/**
+ * A React component that displays a horizontal progress bar.
+ *
+ * @param {number} props.percent The percentage of the progress bar that should be filled.
+ * @returns {ReactElement} The rendered progress bar component.
+ */
 function ProgressBar(props: ProgressBarProps) {
-    // console.log(props.progress);
     return (
         <>
             <p className="text-xl mb-2 text-center">Progress: {Math.round(props.percent)}%</p>
