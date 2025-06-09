@@ -9,7 +9,7 @@ type InputFieldProps = {
   type: string;
   id: string;
   label: string;
-  options?: string[] | null;
+  options?: string[] | null; // drop down options 
   requiredField?: boolean;
   regex?: RegExp;
   setIsValidInput?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
@@ -23,7 +23,7 @@ function InputField({
   type,
   id,
   label,
-  options = null,
+  options = null, // drop down options 
   requiredField = false,
   regex,
   setIsValidInput,
@@ -32,6 +32,12 @@ function InputField({
   setCurrentValue,
   currentValue = "",
 }: InputFieldProps) {
+  /**
+   * Verifies that the input value is valid according to the given regex/len.
+   * It will update the setIsValidLength state if a sizeRange is given, and
+   * update the setIsValidInput state if a regex and setIsValidInput are given.
+   * @param event the change event of the input
+   */
   function checkInput(event: ChangeEvent<HTMLInputElement>) {
     if (sizeRange && setIsValidLength) {
       if (
