@@ -25,7 +25,8 @@ const ProfilePage = () => {
     }
   }, [auth?.session, handleSurveySubmit]);
 
-  const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
+  const numberOfSubmissions = 3;
+  // const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
   // Query the questionnaire submissions related to each specific account
   // Each submission has their own ID, which can be stored as a URL parameter (11.10)
 
@@ -182,20 +183,24 @@ const ProfilePage = () => {
               type="button"
               color="red"
               text="Contact Now"
-              onClick={() =>
-                window.open(recommendations[i].contactUrl, "_blank")
+              onClick={() => {
+                window.open(recommendations[i].contactUrl, "_blank");
+                return;
+              }
               }
             ></Button>
             <Button
               type="button"
               color="red"
               text="Learn More"
-              onClick={() =>
-                window.open(recommendations[i].websiteUrl, "_blank")
+              onClick={() => {
+                window.open(recommendations[i].websiteUrl, "_blank");
+                return;
+              }
               }
             ></Button>
           </span>
-        </CardContainer>
+        </CardContainer >
       );
     }
     setResources(resourceCards);

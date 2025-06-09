@@ -1,9 +1,18 @@
 import NavBar from "./components/NavBar";
 import TeamMember from "./components/TeamMember";
+/**
+ * A functional component that renders the About Us page.
+ *
+ * The About Us page renders a title, a description of the website,
+ * and a list of team members with links to their GitHub and LinkedIn profiles.
+ *
+ * @returns {ReactElement} The rendered AboutUsPage component.
+ */
 function AboutUsPage() {
     return (
         <>
             <style>
+                {/* to fix issue dealing with vite */}
                 {
                     `
                     body {
@@ -41,6 +50,7 @@ function AboutUsPage() {
                     </div>
                     <div className="bg-gradient-to-br from-blue-500 to-blue-200 text-white w-[40vw] h-[60vh] rounded-lg p-[2vh] flex justify-center items-center flex-col">
                         <p className="text-2xl font-bold text-white italic">The Team</p>
+                        {/* team members displayed using TeamMember component */}
                         <TeamMember name="Alan Cordova" github="https://github.com/YoloMcFroyo" linkedin="https://www.linkedin.com/in/alan-talcor/" />
                         <TeamMember name="David Phillips" github="https://github.com/orionsView" linkedin="https://www.linkedin.com/in/david-phillips-swe/" />
                         <TeamMember name="Gabe Lapingcao" github="https://github.com/KokonutGamer" linkedin="https://www.linkedin.com/in/gabe-lapingcao/" />

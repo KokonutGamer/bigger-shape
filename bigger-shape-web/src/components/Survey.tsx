@@ -1,15 +1,35 @@
 import { useState, useEffect } from "react";
 import InputField from "./InputField";
 import ProgressBar from "./ProgressBar";
-import { useAuth } from "../AuthContext";
 import { useSurveySubmit } from "../useSurveySubmit";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+// Define a type for a question object
+type Question = {
+  type: string;
+  id: string;
+  label: string;
+  options: string[];
+};
+
+/**
+ * A Survey component that fetches questions from the API and renders an
+ * InputField component for each question. The user can select an answer
+ * for each question and navigate through the survey using the Prev and Next
+ * buttons. The Submit button is only visible when the user has answered all
+ * the questions, and clicking it will submit the answers to the API.
+ *
+ * The component uses the useState and useEffect hooks to fetch the questions
+ * from the API and store the user's answers in the component's state. The
+ * component also uses the useSurveySubmit hook to handle the submission of
+ * the answers to the API.
+ *
+ * @returns {ReactElement} The rendered Survey component.
+ */
 function Survey() {
-  const auth = useAuth();
-  const [questions, setQuestions] = useState(null);
-  const [selectedAnswer, setSelectedAnswer] = useState([]);
+  const [questions, setQuestions] = useState<Question[] | null>(null); //questions to be fetched
+  const [selectedAnswer, setSelectedAnswer] = useState<string[]>([]); //user answers
   const [page, setPage] = useState(0);
   const { handleSubmit } = useSurveySubmit();
 
@@ -31,13 +51,17 @@ function Survey() {
   function decrePage() {
     setPage((curPage) => (curPage > 0 ? curPage - 1 : curPage));
   }
+
   function increPage() {
-    setPage((curPage) => (curPage < questions.length ? curPage + 1 : curPage));
+    setPage((curPage) =>
+      questions && curPage < questions.length ? curPage + 1 : curPage
+    );
   }
 
   return (
     <>
       <style>
+        {/*fixing issue from using vite*/}
         {`
                 #root{
                   padding: 0;
@@ -57,7 +81,6 @@ function Survey() {
            justify-center
             "
       >
-        {/* <h1 className="text-center text-3xl font-bold mb-4">{pages[page].title}</h1> */}
         <ProgressBar percent={(page / questions.length) * 100} />
         {page === questions.length ? (
           <div className="flex items-center justify-center h-[50%]">
@@ -73,7 +96,7 @@ function Survey() {
               label={questions[page]["label"]}
               options={questions[page]["options"]}
               currentValue={selectedAnswer[page]}
-              setCurrentValue={(value) => {
+              setCurrentValue={(value: string) => {
                 setSelectedAnswer((prev) => {
                   const updated = [...prev];
                   updated[page] = value;
@@ -97,6 +120,7 @@ function Survey() {
           </div>
         )}
         <div className="flex space-x-4 justify-center mb-4 h-[10%]">
+          { /*this message only appears when the user has not selected an option*/}
           <p className="text-white" hidden={selectedAnswer[page] !== "default"}>
             Select an option to continue
           </p>
