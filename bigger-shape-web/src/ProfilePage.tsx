@@ -12,11 +12,15 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const auth = useAuth();
   const { handleSubmit: handleSurveySubmit } = useSurveySubmit();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+  // Triggers loadCorrectProfile, which loads either a guest or logged-in user's profile
   useEffect(() => {
     loadCorrectProfile();
   }, []);
 
+  // Pushes survey answers to the database if the survey answers have not yet been
+  // pushed. This may occur if the user logs in after completing the survey
   useEffect(() => {
     const isUploaded = localStorage.getItem("uploaded");
     if (isUploaded === "false" && auth?.session) {
@@ -25,7 +29,31 @@ const ProfilePage = () => {
     }
   }, [auth?.session, handleSurveySubmit]);
 
-  const numberOfSubmissions = 3;
+  // Gets the user's history if the user is logged in
+  useEffect(() => {
+    if (auth?.session?.access_token) {
+      fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.session.access_token}`,
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Error retrieving history");
+          }
+          return response.json();
+        })
+        .then((body) => {
+          sessionStorage.setItem("history", JSON.stringify(body));
+          console.log(body);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+  });
+
   // const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
   // Query the questionnaire submissions related to each specific account
   // Each submission has their own ID, which can be stored as a URL parameter (11.10)
@@ -37,7 +65,7 @@ const ProfilePage = () => {
   const [resources, setResources] = useState<React.ReactNode[]>([]);
 
   // An array of cards that appear on the submissions modal
-  const previousSubmissions = renderSubmissions(numberOfSubmissions);
+  const previousSubmissions = renderSubmissions();
 
   useEffect(() => {
     document.title = "Dashboard";
@@ -160,7 +188,7 @@ const ProfilePage = () => {
     if (!recommendationsString) {
       return;
     }
-    const recommendations = JSON.parse(recommendationsString).recommendations;
+    const recommendations = JSON.parse(recommendationsString)?.recommendations;
     if (recommendations.length === 0) {
       return;
     }
@@ -186,8 +214,7 @@ const ProfilePage = () => {
               onClick={() => {
                 window.open(recommendations[i].contactUrl, "_blank");
                 return;
-              }
-              }
+              }}
             ></Button>
             <Button
               type="button"
@@ -196,11 +223,10 @@ const ProfilePage = () => {
               onClick={() => {
                 window.open(recommendations[i].websiteUrl, "_blank");
                 return;
-              }
-              }
+              }}
             ></Button>
           </span>
-        </CardContainer >
+        </CardContainer>
       );
     }
     setResources(resourceCards);
@@ -254,9 +280,10 @@ const ProfilePage = () => {
 // This just accepts an integer parameter for now. Later this should
 // probably be changed to accept an array of Ids which correlate
 // to a unique questionnaire submission
-const renderSubmissions = (numberOfSubmissions: number) => {
+const renderSubmissions = () => {
   const cards = [];
-  if (numberOfSubmissions === 0) {
+  let userHistory = sessionStorage.getItem("history");
+  if (!userHistory) {
     cards.push(
       <CardContainer
         width={5}
@@ -269,19 +296,26 @@ const renderSubmissions = (numberOfSubmissions: number) => {
       </CardContainer>
     );
   } else {
-    for (let i = 1; i <= numberOfSubmissions; i++) {
-      cards.push(
-        <CardContainer
-          width={5}
-          height={5}
-          fromColor="gray-100"
-          toColor="gray-100"
-          className="flex flex-row space-x-4
-            hover:shadow-md hover:scale-105 transition-all duration-300"
-        >
-          <p>{`Questionnaire Submission #${i}`}</p>
-        </CardContainer>
-      );
+    userHistory = JSON.parse(userHistory);
+    if (Array.isArray(userHistory)) {
+      for (let i = 0; i < userHistory.length; i++) {
+        cards.push(
+          <CardContainer
+            width={5}
+            height={5}
+            fromColor="gray-100"
+            toColor="gray-100"
+            className="flex flex-col justify-center text-center border border-black
+              hover:shadow-md hover:scale-105 transition-all duration-300"
+          >
+            <p>{`Questionnaire Submission #${i + 1}`}</p>
+            <p>{`Date taken: ${new Date(
+              userHistory[i].questionnaire.dateTaken
+            ).toLocaleDateString()}`}</p>
+            <p>{`Risk score: ${userHistory[i].questionnaire.riskScore}/10`}</p>
+          </CardContainer>
+        );
+      }
     }
   }
   return cards;
