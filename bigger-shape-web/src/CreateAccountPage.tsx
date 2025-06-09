@@ -4,6 +4,17 @@ import { useEffect, useState } from "react";
 import NavBar from "./components/NavBar";
 import { supabase } from "./AuthContext";
 
+/**
+ * Handles the create account page.
+ * This function is responsible for rendering the create account page.
+ * The page includes input fields for the user's name, email, and password
+
+ * The user's information is validated before attempting to create an account.
+ * If the information is invalid, an error message is displayed.
+ * If the information is valid, the user is redirected to the dashboard.
+ * 
+ * @returns The rendered create account page.
+ */
 function CreateAccountPage() {
 
     const [isValidInput, setIsValidInput] = useState({
@@ -11,30 +22,25 @@ function CreateAccountPage() {
         password: true,
         confirmPassword: true,
         email: true,
-        // phoneNumber: false
     });
     const [isValidLength, setIsValidLength] = useState({
         userName: true,
         password: true,
     });
     useEffect(() => {
+        // for debugging
         console.log(isValidInput);
     }, [isValidInput]);
 
+    // used to store the user's information
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
-    // const [phoneNumber, setPhoneNumber] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
-    // const [response, setResponse] = useState({
-    //     userName: "",
-    //     password: "",
-    //     confirmPassword: "",
-    //     email: "",
-    //     phoneNumber: ""
-    // });
 
+
+    // every time password is updated, checks if confirmPassword is equal to password
     useEffect(() => {
         const isMatch = password === confirmPassword;
         setIsValidInput(prev => ({
@@ -44,6 +50,12 @@ function CreateAccountPage() {
     }, [password, confirmPassword]);
 
 
+    /**
+     * Handles the create account page.
+     * This function is responsible for validating the user's information and creating an account.
+     * If the user's information is invalid, an error message is displayed.
+     * If the user's information is valid, the user is redirected to the dashboard.
+     */
     async function handleCreateAccount() {
         if (userName === "" || password === "" || confirmPassword === "" || email === "") {
             console.log("Please fill in all fields.");
@@ -55,11 +67,7 @@ function CreateAccountPage() {
             return;
         }
 
-        console.log(userName);
-        console.log(email);
-        // console.log(phoneNumber);
-        console.log(password);
-        console.log(confirmPassword);
+
         const signupPayload = {
             password,
             options: {
@@ -72,9 +80,7 @@ function CreateAccountPage() {
         if (email) {
             signupPayload.email = email;
         }
-        // if (phoneNumber) {
-        //     signupPayload.phone = phoneNumber;
-        // }
+
 
         const { data, error } = await supabase.auth.signUp(signupPayload);
         if (error) {
@@ -84,13 +90,13 @@ function CreateAccountPage() {
 
         console.log("Signup successful:", data);
         window.location.href = "/dashboard";
-
     }
 
 
     return (
         <>
             <style>
+                {/* to fix issue dealing with vite */}
                 {`
                     #root{
                         padding: 0;
@@ -121,15 +127,11 @@ function CreateAccountPage() {
 
                     <InputField type="password" id="passwordConfirm" label="Confirm Password:" requiredField={true} setIsValidInput={setIsValidInput} setCurrentValue={setConfirmPassword} />
                     <ErrorMessage message="Must match password" hidden={isValidInput.confirmPassword} />
-                    <ErrorMessage message="Placeholder" hidden={true} />
+                    <ErrorMessage message="Placeholder" hidden={true} /> {/* placeholder for consistency */}
 
                     <InputField type="text" id="email" label="Email Address:" requiredField={false} regex={/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/} setIsValidInput={setIsValidInput} setCurrentValue={setEmail} />
                     <ErrorMessage message="Must be a valid email" hidden={isValidInput.email} />
-                    <ErrorMessage message="Placeholder" hidden={true} />
-
-
-                    {/* <InputField type="text" id="phoneNumber" label="Phone Number:" requiredField={false} regex={/^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/} setIsValidInput={setIsValidInput} setCurrentValue={setPhoneNumber} />
-                    <ErrorMessage message="Must be a valid phone number: 123-456-7890" hidden={isValidInput.phoneNumber} /> */}
+                    <ErrorMessage message="Placeholder" hidden={true} />{/* placeholder for consistency */}
 
                     <p className="text-red-600 text-sm text-center mt-[2vh]">* required field</p>
 
