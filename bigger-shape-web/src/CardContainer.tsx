@@ -8,6 +8,7 @@ interface CardContainerProps {
   toColor: string;
   children?: ReactNode;
   className?: string;
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const CardContainer: React.FC<CardContainerProps> = ({
@@ -17,6 +18,7 @@ const CardContainer: React.FC<CardContainerProps> = ({
   toColor,
   children,
   className,
+  onClick,
 }) => {
   const minWidth = `min-w-[${width}rem]`;
   const minHeight = `
@@ -34,6 +36,7 @@ const CardContainer: React.FC<CardContainerProps> = ({
         flex items-stretch justify-center space-y-2
         ${className || ""}
         `}
+      onClick={onClick}
     >
       {children}
     </div>

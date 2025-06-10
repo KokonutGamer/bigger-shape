@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import HistoryModal from "./HistoryModal";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./AuthContext";
-import { useSurveySubmit } from "./useSurveySubmit";
+import { useSurveySubmit, getRecommendations } from "./useSurveySubmit";
 
 const ProfilePage = () => {
   // Used to redirect the user to another page
@@ -13,6 +13,21 @@ const ProfilePage = () => {
   const auth = useAuth();
   const { handleSubmit: handleSurveySubmit } = useSurveySubmit();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Used to control the visiblity of the previous submissions modal
+  const [isHistoryVisible, setIsHistoryVisible] = useState(false);
+
+  // Dynamic list of homeless resources
+  const [resources, setResources] = useState<React.ReactNode[]>([]);
+
+  // Value used to determine which submission recommendations to render
+  const [selectedSubmission, setSelectedSubmission] = useState<number>(0);
+
+  // Changes the tab's title, applies styles, and loads recommendations.
+  useEffect(() => {
+    document.title = "Dashboard";
+    import("bootstrap/dist/css/bootstrap.min.css");
+  }, []);
 
   // Triggers loadCorrectProfile, which loads either a guest or logged-in user's profile
   useEffect(() => {
@@ -30,8 +45,10 @@ const ProfilePage = () => {
   }, [auth?.session, handleSurveySubmit]);
 
   // Gets the user's history if the user is logged in
+  // If not, use the public API for recommendations
   useEffect(() => {
     if (auth?.session?.access_token) {
+      console.log("user is logged in. Fetching user history!");
       fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
         headers: {
           "Content-Type": "application/json",
@@ -45,33 +62,39 @@ const ProfilePage = () => {
           return response.json();
         })
         .then((body) => {
+          console.log("inputing history and printing the body");
           sessionStorage.setItem("history", JSON.stringify(body));
           console.log(body);
+        })
+        .then(() => {
+          // load history
         })
         .catch((error) => {
           console.error("Error:", error);
         });
     }
-  });
+    getRecommendations();
+    loadResources();
+  }, [auth?.session?.access_token, API_BASE_URL]);
 
-  // const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
-  // Query the questionnaire submissions related to each specific account
-  // Each submission has their own ID, which can be stored as a URL parameter (11.10)
+  const loadRecommendationsForSubmission = () => {
+    // set recommendations
+    const userHistory = sessionStorage.getItem("history");
+    if (userHistory && !userHistory[selectedSubmission]) {
+      const selectedAnswerSet = JSON.parse(userHistory[selectedSubmission]);
+      // Load all the questions into session storage
+      for (let i = 0; i < selectedAnswerSet.answers.length; i++) {
+        sessionStorage.setItem(`question-${i}`, ``);
+      }
+    }
 
-  // Used to control the visiblity of the previous submissions modal
-  const [isHistoryVisible, setIsHistoryVisible] = useState(false);
-
-  // Dynamic list of homeless resources
-  const [resources, setResources] = useState<React.ReactNode[]>([]);
-
-  // An array of cards that appear on the submissions modal
-  const previousSubmissions = renderSubmissions();
+    getRecommendations();
+  };
 
   useEffect(() => {
-    document.title = "Dashboard";
-    import("bootstrap/dist/css/bootstrap.min.css");
-    loadResources();
-  }, []);
+    loadRecommendationsForSubmission();
+    renderSubmissions();
+  }, [selectedSubmission]);
 
   // Redirects the user to the survey page
   const handleTakeQuestionnaire = () => {
@@ -182,13 +205,13 @@ const ProfilePage = () => {
   };
 
   // Loads all the recommendation cards from sessionStorage
+  // Used for public recommendations i.e. when the user is not logged in
   const loadResources = () => {
-    setResources([]);
     const recommendationsString = sessionStorage.getItem("recommendations");
     if (!recommendationsString) {
       return;
     }
-    const recommendations = JSON.parse(recommendationsString)?.recommendations;
+    const recommendations = JSON.parse(recommendationsString).recommendations;
     if (recommendations.length === 0) {
       return;
     }
@@ -232,6 +255,50 @@ const ProfilePage = () => {
     setResources(resourceCards);
   };
 
+  // Renders the cards that appear when clicking on the "Get Previous Submissions" button
+  const renderSubmissions = () => {
+    const cards = [];
+    let userHistory = sessionStorage.getItem("history");
+    if (!userHistory) {
+      cards.push(
+        <CardContainer
+          width={5}
+          height={5}
+          fromColor="blue-200"
+          toColor="blue-500"
+          className="flex flex-row space-x-4"
+        >
+          <p>No submissions yet!</p>
+        </CardContainer>
+      );
+    } else {
+      userHistory = JSON.parse(userHistory);
+      if (Array.isArray(userHistory)) {
+        for (let i = 0; i < userHistory.length; i++) {
+          cards.push(
+            <CardContainer
+              width={5}
+              height={5}
+              fromColor="gray-100"
+              toColor="gray-100"
+              className="flex flex-col justify-center text-center border border-black
+              hover:shadow-md hover:scale-105 transition-all duration-300"
+              key={i}
+              onClick={() => setSelectedSubmission(i)}
+            >
+              <p>{`Questionnaire Submission #${i + 1}`}</p>
+              <p>{`Date taken: ${new Date(
+                userHistory[i].questionnaire.dateTaken
+              ).toLocaleDateString()}`}</p>
+              <p>{`Risk score: ${userHistory[i].questionnaire.riskScore}/10`}</p>
+            </CardContainer>
+          );
+        }
+      }
+    }
+    return cards;
+  };
+
   return (
     <>
       <div
@@ -271,54 +338,10 @@ const ProfilePage = () => {
       <HistoryModal
         show={isHistoryVisible}
         hide={hideHistory}
-        submissions={previousSubmissions}
+        submissions={renderSubmissions()}
       ></HistoryModal>
     </>
   );
-};
-
-// This just accepts an integer parameter for now. Later this should
-// probably be changed to accept an array of Ids which correlate
-// to a unique questionnaire submission
-const renderSubmissions = () => {
-  const cards = [];
-  let userHistory = sessionStorage.getItem("history");
-  if (!userHistory) {
-    cards.push(
-      <CardContainer
-        width={5}
-        height={5}
-        fromColor="blue-200"
-        toColor="blue-500"
-        className="flex flex-row space-x-4"
-      >
-        <p>No submissions yet!</p>
-      </CardContainer>
-    );
-  } else {
-    userHistory = JSON.parse(userHistory);
-    if (Array.isArray(userHistory)) {
-      for (let i = 0; i < userHistory.length; i++) {
-        cards.push(
-          <CardContainer
-            width={5}
-            height={5}
-            fromColor="gray-100"
-            toColor="gray-100"
-            className="flex flex-col justify-center text-center border border-black
-              hover:shadow-md hover:scale-105 transition-all duration-300"
-          >
-            <p>{`Questionnaire Submission #${i + 1}`}</p>
-            <p>{`Date taken: ${new Date(
-              userHistory[i].questionnaire.dateTaken
-            ).toLocaleDateString()}`}</p>
-            <p>{`Risk score: ${userHistory[i].questionnaire.riskScore}/10`}</p>
-          </CardContainer>
-        );
-      }
-    }
-  }
-  return cards;
 };
 
 export default ProfilePage;

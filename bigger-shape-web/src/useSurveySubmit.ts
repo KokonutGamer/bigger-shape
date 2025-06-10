@@ -1,5 +1,6 @@
 import { useAuth } from "./AuthContext";
-
+import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Returns the body of the HTTPRequest for /api/v1/auth/users/history in a JSON format
@@ -50,10 +51,11 @@ const getRecommendationsRequestBody = () => {
     });
 };
 
-// pushes survey answers to the database if the user is authorized
+// Pushes survey answers to the database if the user is authorized
 export function useSurveySubmit() {
     const auth = useAuth();
-    const handleSubmit = () => {
+      const navigate = useNavigate();
+    const handleSubmit = useCallback(() => {
         if (auth?.session?.access_token) {
             fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
                 method: "POST",
@@ -68,24 +70,29 @@ export function useSurveySubmit() {
                     localStorage.setItem("uploaded", "true");
                 })
                 .catch((error) => {
-                    console.error("Error:", error)
+                    throw new Error(error);
                 }
             );
         }
-        // get recommendations
-        fetch(`${API_BASE_URL}/api/v1/public/submit-answers`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: getRecommendationsRequestBody(),
-        })
-            .then((response) => response.json())
-            .then((body) => {
-                sessionStorage.setItem("recommendations", JSON.stringify(body));
-            })
-            .then(() => (window.location.href = "/dashboard")
-        );
-    }
+        getRecommendations().then(() => {
+            navigate("/dashboard");
+        });
+    }, [auth]);
     return { handleSubmit };
+}
+
+// Retrieves the recommendations based on the survey answers
+export function getRecommendations() {
+    return fetch(`${API_BASE_URL}/api/v1/public/submit-answers`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: getRecommendationsRequestBody(),
+    })
+        .then((response) => response.json())
+        .then((body) => {
+            sessionStorage.setItem("recommendations", JSON.stringify(body));
+        }
+    );
 }
