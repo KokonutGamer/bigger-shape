@@ -28,6 +28,6 @@ public class QuestionOption {
   private Question question;
 
   @NonNull
-  @Column(name="content", nullable= false)
+  @Column(name = "content", nullable = false)
   private String content;
 }
