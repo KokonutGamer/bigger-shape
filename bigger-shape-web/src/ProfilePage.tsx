@@ -5,22 +5,28 @@ import { useNavigate } from "react-router-dom";
 import HistoryModal from "./HistoryModal";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./AuthContext";
+import { useSurveySubmit } from "./useSurveySubmit";
 
 const ProfilePage = () => {
   // Used to redirect the user to another page
   const navigate = useNavigate();
   const auth = useAuth();
+  const { handleSubmit: handleSurveySubmit } = useSurveySubmit();
 
-  // If user is not yet logged in, redirect them to login page
   useEffect(() => {
     loadCorrectProfile();
   }, []);
 
-  // If the user has not yet submitted a questionnaire, redirect them to the
-  // survey page. To view the dashboard, they must have at least one submission.
-  // Hmm... are we allowing the user to delete previous submissions?
+  useEffect(() => {
+    const isUploaded = localStorage.getItem("uploaded");
+    if (isUploaded === "false" && auth?.session) {
+      handleSurveySubmit();
+      localStorage.setItem("uploaded", "true");
+    }
+  }, [auth?.session, handleSurveySubmit]);
 
-  const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
+  const numberOfSubmissions = 3;
+  // const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
   // Query the questionnaire submissions related to each specific account
   // Each submission has their own ID, which can be stored as a URL parameter (11.10)
 
@@ -51,6 +57,8 @@ const ProfilePage = () => {
     if (error) {
       // error handling
     } else {
+      sessionStorage.clear();
+      localStorage.setItem("uploaded", "false");
       navigate("/login");
     }
   };
@@ -175,20 +183,24 @@ const ProfilePage = () => {
               type="button"
               color="red"
               text="Contact Now"
-              onClick={() =>
-                window.open(recommendations[i].contactUrl, "_blank")
+              onClick={() => {
+                window.open(recommendations[i].contactUrl, "_blank");
+                return;
+              }
               }
             ></Button>
             <Button
               type="button"
               color="red"
               text="Learn More"
-              onClick={() =>
-                window.open(recommendations[i].websiteUrl, "_blank")
+              onClick={() => {
+                window.open(recommendations[i].websiteUrl, "_blank");
+                return;
+              }
               }
             ></Button>
           </span>
-        </CardContainer>
+        </CardContainer >
       );
     }
     setResources(resourceCards);
