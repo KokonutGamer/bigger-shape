@@ -12,10 +12,9 @@ import bigger.shape.bigger_shape_api.dtos.SubmissionRequestBodyDto;
 import bigger.shape.bigger_shape_api.responses.GetQuestionsResponse;
 import bigger.shape.bigger_shape_api.responses.RecommendationsResponse;
 import bigger.shape.bigger_shape_api.services.QuestionnaireService;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("${api.endpoint}/public")
 public class QuestionnaireController {
   @Autowired
   QuestionnaireService questionnaireService;
@@ -27,8 +26,8 @@ public class QuestionnaireController {
    * 
    * @return ResponseEntity containing GetQuestionsResponse with all questions.
    */
-  @GetMapping("/public/questions")
-  ResponseEntity<GetQuestionsResponse> getQuestions() {
+  @GetMapping("/questions")
+  public ResponseEntity<GetQuestionsResponse> getQuestions() {
     GetQuestionsResponse result = new GetQuestionsResponse(
         questionnaireService.getAllQuestionsAsDtos());
     return ResponseEntity.ok(result);
@@ -44,10 +43,10 @@ public class QuestionnaireController {
    * @param request
    * @return
    */
-  @PostMapping("/public/submit-answers")
+  @PostMapping("/submit-answers")
   public ResponseEntity<RecommendationsResponse> submitAnswersAndGetRecommendations(
       @RequestBody SubmissionRequestBodyDto request) {
-        RecommendationsResponse response = questionnaireService.processAnswersAndGetRecommendations(request);
+    RecommendationsResponse response = questionnaireService.processAnswersAndGetRecommendations(request);
     return ResponseEntity.ok(response);
   }
 }
