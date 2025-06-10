@@ -14,6 +14,7 @@ import bigger.shape.bigger_shape_api.entities.AnswerId;
 import bigger.shape.bigger_shape_api.entities.QuestionnaireResult;
 import bigger.shape.bigger_shape_api.entities.User;
 import bigger.shape.bigger_shape_api.repositories.AnswerRepository;
+import bigger.shape.bigger_shape_api.repositories.QuestionOptionRepository;
 import bigger.shape.bigger_shape_api.repositories.QuestionRepository;
 import bigger.shape.bigger_shape_api.repositories.QuestionnaireRepository;
 import bigger.shape.bigger_shape_api.repositories.UserRepository;
@@ -26,13 +27,16 @@ public class UserService {
     private final QuestionnaireRepository questionnaireRepository;
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
+    private final QuestionOptionRepository questionOptionRepository;
 
     public UserService(UserRepository userRepository, QuestionnaireRepository questionnaireRepository,
-            AnswerRepository answerRepository, QuestionRepository questionRepository) {
+            AnswerRepository answerRepository, QuestionRepository questionRepository,
+            QuestionOptionRepository questionOptionRepository) {
         this.userRepository = userRepository;
         this.questionnaireRepository = questionnaireRepository;
         this.answerRepository = answerRepository;
         this.questionRepository = questionRepository;
+        this.questionOptionRepository = questionOptionRepository;
     }
 
     public List<QuestionnaireHistoryEntryDto> findAllQuestionnaireHistoryEntries(UUID id) {
@@ -52,7 +56,13 @@ public class UserService {
                     // Retrieve answers as a DTO
                     List<AnswerDto> answers = answerRepository
                             .findAllAnswersByIdDateScore(id, dto.getDateTaken(), dto.getRiskScore()).stream()
-                            .map(AnswerDto::fromEntity).collect(Collectors.toList());
+                            .map(AnswerDto::fromEntity)
+                            .peek(answerDto -> {
+                                Long questionOptionOrder = questionOptionRepository.findQuestionOptionOrderByAnswer(
+                                        answerDto.getQuestionOrder(), answerDto.getAnswerContent());
+                                answerDto.setQuestionOptionOrder(questionOptionOrder);
+                            })
+                            .collect(Collectors.toList());
 
                     // Add all answers for this entry
                     entry.getAnswers().addAll(answers);
