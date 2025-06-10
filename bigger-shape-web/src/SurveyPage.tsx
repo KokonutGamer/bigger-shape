@@ -4,11 +4,13 @@ import NavBar from "./components/NavBar";
 const SurveyPage = () => {
     return (
         <>
-            <div className="flex items-center justify-center flex-col w-[100vw] h-[10vh]">
-                <NavBar />
-            </div>
-            <div className="flex items-center justify-center flex-col w-[100vw] h-[90vh]">
-                <Survey />
+            <div className="bg-gradient-to-br from-blue-200 to-blue-500 w-[100vw] ">
+                <div className="flex items-center  flex-col w-[100vw] h-[10vh]">
+                    <NavBar />
+                </div>
+                <div className="flex items-center flex-col w-[100vw]  ">
+                    <Survey />
+                </div>
             </div>
         </>
 
