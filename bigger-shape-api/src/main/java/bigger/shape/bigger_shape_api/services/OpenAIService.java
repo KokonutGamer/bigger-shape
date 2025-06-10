@@ -1,6 +1,7 @@
 package bigger.shape.bigger_shape_api.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.ai.chat.client.ChatClient;
@@ -10,6 +11,7 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.ResponseFormat;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 
 import bigger.shape.bigger_shape_api.entities.Question;
@@ -76,7 +78,7 @@ public class OpenAIService {
 				.content();
 	}
 
-	public String analyzeUserSubmissionRisk(RecommendationsResponse recommendations) {
+	public Map<String, Object> analyzeUserSubmissionRisk(RecommendationsResponse recommendations) {
 		// Compiled client message with JSON from the submissions and recommendations
 		StringBuilder userMessageBuilder = new StringBuilder(
 				"Below is a mapping of a risk factor to a recommended resource to help them.");
@@ -94,7 +96,7 @@ public class OpenAIService {
 				.responseFormat(new ResponseFormat(ResponseFormat.Type.JSON_SCHEMA, jsonSchema)).build();
 		Prompt prompt = new Prompt(List.of(systemMessage, userMessage), options);
 
-		return this.chatClient.prompt(prompt).call().content();
+		return this.chatClient.prompt(prompt).call().entity(new ParameterizedTypeReference<Map<String, Object>>() {});
 	}
 
 }

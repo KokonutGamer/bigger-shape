@@ -30,7 +30,7 @@ public class AIController {
     }
 
     @PostMapping("/risk-analysis")
-    public Object getRiskScoreAndDescription(@RequestBody SubmissionRequestBodyDto dto) {
+    public ResponseEntity<?> getRiskScoreAndDescription(@RequestBody SubmissionRequestBodyDto dto) {
         RecommendationsResponse recommendations = questionnaireService.processAnswersAndGetRecommendations(dto);
         return ResponseEntity.ok(openAIService.analyzeUserSubmissionRisk(recommendations));
     }
