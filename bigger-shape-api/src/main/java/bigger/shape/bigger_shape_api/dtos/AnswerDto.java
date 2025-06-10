@@ -5,9 +5,11 @@ import lombok.Data;
 
 @Data
 public class AnswerDto {
+    private Long questionOptionOrder;
     private String answerContent;
     private Long questionOrder;
 
+    // DOES NOT MAP THE QUESTION OPTION ORDER - this must be done manually
     public static AnswerDto fromEntity(Answer answer) {
         AnswerDto result = new AnswerDto();
         result.setAnswerContent(answer.getAnswerContent());
