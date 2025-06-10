@@ -35,6 +35,7 @@ const getRecommendationsRequestBody = () => {
         questionId: string;
         answer: number;
     }[] = [];
+    console.log("i am creating the request body");
     for (let i = 0; i < sessionStorage.length; i++) {
         const value = sessionStorage.getItem(`question-${i}`);
         if (!value) {
@@ -83,6 +84,7 @@ export function useSurveySubmit() {
 
 // Retrieves the recommendations based on the survey answers
 export function getRecommendations() {
+    console.log("i am getting recommendations");
     return fetch(`${API_BASE_URL}/api/v1/public/submit-answers`, {
         method: "POST",
         headers: {
@@ -95,4 +97,15 @@ export function getRecommendations() {
             sessionStorage.setItem("recommendations", JSON.stringify(body));
         }
     );
+}
+
+// Returns the questions' id
+export function getQuestions() {
+    console.log("I am getQuestions!");
+    return fetch(`${API_BASE_URL}/api/v1/public/questions`)
+      .then((res) => res.json())
+      .then((data) =>   {
+        return data.questions.map(question => question.id);
+      })
+      .catch((err) => console.error("Fetch error:", err));
 }

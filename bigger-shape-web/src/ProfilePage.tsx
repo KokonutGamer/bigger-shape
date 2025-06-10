@@ -5,7 +5,11 @@ import { useNavigate } from "react-router-dom";
 import HistoryModal from "./HistoryModal";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./AuthContext";
-import { useSurveySubmit, getRecommendations } from "./useSurveySubmit";
+import {
+  useSurveySubmit,
+  getRecommendations,
+  getQuestions,
+} from "./useSurveySubmit";
 
 const ProfilePage = () => {
   // Used to redirect the user to another page
@@ -22,6 +26,8 @@ const ProfilePage = () => {
 
   // Value used to determine which submission recommendations to render
   const [selectedSubmission, setSelectedSubmission] = useState<number>(0);
+
+  const [questionIds, setQuestionIds] = useState([]);
 
   // Changes the tab's title, applies styles, and loads recommendations.
   useEffect(() => {
@@ -68,14 +74,35 @@ const ProfilePage = () => {
         })
         .then(() => {
           // load history
+          // get the index of the selected answer
+
+          // extract the answers for each question
+          const historyString = sessionStorage.getItem("history");
+          if (historyString) {
+            const historyJSON = JSON.parse(historyString);
+            const answers = historyJSON[selectedSubmission].answers;
+            getQuestions().then((ids) => {
+              setQuestionIds(ids);
+              for (let i = 0; i < ids.length; i++) {
+                sessionStorage.setItem(
+                  `question-${i}`,
+                  JSON.stringify({ questionId: ids[i], answerIndex: 1 })
+                );
+              }
+            });
+          }
+        })
+        .then(() => {
+          getRecommendations();
+          loadResources();
         })
         .catch((error) => {
           console.error("Error:", error);
         });
-    }
+    } // end user is authorized
     getRecommendations();
     loadResources();
-  }, [auth?.session?.access_token, API_BASE_URL]);
+  }, [auth?.session?.access_token, API_BASE_URL, selectedSubmission]);
 
   const loadRecommendationsForSubmission = () => {
     // set recommendations
