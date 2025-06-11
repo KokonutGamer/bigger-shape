@@ -27,7 +27,7 @@ const ProfilePage = () => {
   const [resourcesLoading, setResourcesLoading] = useState(false);
 
   // Value used to determine which submission recommendations to render
-  const [selectedSubmission, setSelectedSubmission] = useState<number>(-1);
+  const [selectedSubmission, setSelectedSubmission] = useState<number>(0);
 
   const [questionIds, setQuestionIds] = useState([]);
 
@@ -37,90 +37,150 @@ const ProfilePage = () => {
     import("bootstrap/dist/css/bootstrap.min.css");
   }, []);
 
-  // Triggers loadCorrectProfile, which loads either a guest or logged-in user's profile
   useEffect(() => {
+    if (!auth?.session || auth?.isLoading) {
+      return;
+    }
+    console.log("i am triggered!");
     loadCorrectProfile();
-  }, []);
+    const processHistory = async () => {
+      await loadHistory();
+      const questionsLoaded = loadQuestions();
+      if (questionsLoaded) {
+        getRecommendations();
+        loadResources();
+        renderSubmissions();
+      }
+    };
+    processHistory();
+  }, [auth?.isLoading]);
+
+  // Loads user's history and stores in session storage
+  const loadHistory = async () => {
+    if (auth?.session?.access_token) {
+      // If the user is authorized, GET their history.
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/auth/users/history`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth.session.access_token}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const body = await response.json();
+        sessionStorage.setItem("history", JSON.stringify(body));
+      }
+    }
+  };
+
+  useEffect(() => {}, []);
+
+  // Loads questions into session storage
+  // The questions are needed to create the recommendations
+  const loadQuestions = () => {
+    console.log("loading questions");
+    const body = JSON.parse(sessionStorage.getItem("history"));
+    if (!body || body.length === 0) {
+      return false;
+    }
+    console.log(body);
+    const answers = body[selectedSubmission].answers;
+    // Retrieve the question ids
+    getQuestions().then((ids) => {
+      for (let i = 0; i < ids.length; i++) {
+        sessionStorage.setItem(
+          `question-${i}`,
+          JSON.stringify({
+            questionId: ids[i],
+            answerIndex: answers[i].questionOptionOrder,
+          })
+        );
+      }
+    });
+    return true;
+  };
 
   // Pushes survey answers to the database if the survey answers have not yet been
   // pushed. This may occur if the user logs in after completing the survey
-  useEffect(() => {
-    const isUploaded = localStorage.getItem("uploaded");
-    if (isUploaded === "false" && auth?.session) {
-      handleSurveySubmit();
-      localStorage.setItem("uploaded", "true");
-    }
-  }, [auth?.session, handleSurveySubmit]);
+  //   useEffect(() => {
+  //     const isUploaded = localStorage.getItem("uploaded");
+  //     if (isUploaded === "false" && auth?.session) {
+  //       handleSurveySubmit();
+  //       localStorage.setItem("uploaded", "true");
+  //     }
+  //   }, [auth?.session, handleSurveySubmit]);
 
-  // Gets the user's history if the user is logged in
-  // If not, use the public API for recommendations
-  useEffect(() => {
-    if (auth?.session?.access_token) {
-      setResourcesLoading(true);
-      // First, get all previous submissions for this user
-      console.log("1. user is logged in. Fetching user history!");
-      fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.session.access_token}`,
-        },
-      })
-        .then((response) => {
-          // Then, convert the response into json
-          if (!response.ok) {
-            throw new Error("Error retrieving history");
-          }
-          return response.json();
-        })
-        .then((body) => {
-          if (JSON.stringify(body) === "[]") {
-            // No history
-            return;
-          }
-          sessionStorage.setItem("history", JSON.stringify(body));
-          console.log(body);
-          if (selectedSubmission === -1) {
-            return;
-          }
-          // extract the answers for each question
-          const answers = body[selectedSubmission].answers;
-          return getQuestions().then((ids) => {
-            setQuestionIds(ids);
-            for (let i = 0; i < ids.length; i++) {
-              sessionStorage.setItem(
-                `question-${i}`,
-                JSON.stringify({
-                  questionId: ids[i],
-                  answerIndex: answers[i].questionOptionOrder,
-                })
-              );
-            }
-            console.log(
-              "2. ok, i'm done putting all the questions from history into storage"
-            );
-          });
-        })
-        .then(() => {
-          console.log("3. now let's get the recommendations...");
-          return getRecommendations();
-        })
-        .then(() => {
-          console.log("5. using the recommendations, im loading resources now");
-          loadResources();
-          renderSubmissions();
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        })
-        .finally(() => {
-          setResourcesLoading(false);
-        });
-    } else {
-      localStorage.setItem("uploaded", "false");
-      getRecommendations();
-      loadResources();
-    }
-  }, [auth?.session?.access_token, API_BASE_URL, selectedSubmission]);
+  //   // Gets the user's history if the user is logged in
+  //   // If not, use the public API for recommendations
+  //   useEffect(() => {
+  //     if (auth?.session?.access_token) {
+  //       setResourcesLoading(true);
+  //       // First, get all previous submissions for this user
+  //       console.log("1. user is logged in. Fetching user history!");
+  //       fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${auth.session.access_token}`,
+  //         },
+  //       })
+  //         .then((response) => {
+  //           // Then, convert the response into json
+  //           if (!response.ok) {
+  //             throw new Error("Error retrieving history");
+  //           }
+  //           return response.json();
+  //         })
+  //         .then((body) => {
+  //           if (JSON.stringify(body) === "[]") {
+  //             // No history
+  //             return;
+  //           }
+  //           sessionStorage.setItem("history", JSON.stringify(body));
+  //           console.log(body);
+  //           if (selectedSubmission === -1) {
+  //             return;
+  //           }
+  //           // extract the answers for each question
+  //           const answers = body[selectedSubmission].answers;
+  //           return getQuestions().then((ids) => {
+  //             setQuestionIds(ids);
+  //             for (let i = 0; i < ids.length; i++) {
+  //               sessionStorage.setItem(
+  //                 `question-${i}`,
+  //                 JSON.stringify({
+  //                   questionId: ids[i],
+  //                   answerIndex: answers[i].questionOptionOrder,
+  //                 })
+  //               );
+  //             }
+  //             console.log(
+  //               "2. ok, i'm done putting all the questions from history into storage"
+  //             );
+  //           });
+  //         })
+  //         .then(() => {
+  //           console.log("3. now let's get the recommendations...");
+  //           return getRecommendations();
+  //         })
+  //         .then(() => {
+  //           console.log("5. using the recommendations, im loading resources now");
+  //           loadResources();
+  //           renderSubmissions();
+  //         })
+  //         .catch((error) => {
+  //           console.error("Error:", error);
+  //         })
+  //         .finally(() => {
+  //           setResourcesLoading(false);
+  //         });
+  //     } else {
+  //       localStorage.setItem("uploaded", "false");
+  //       getRecommendations();
+  //       loadResources();
+  //     }
+  //   }, [auth?.session?.access_token, API_BASE_URL, selectedSubmission]);
 
   // Redirects the user to the survey page
   const handleTakeQuestionnaire = () => {
