@@ -35,7 +35,6 @@ const getRecommendationsRequestBody = () => {
         questionId: string;
         answer: number;
     }[] = [];
-    console.log("i am creating the request body");
     for (let i = 0; i < sessionStorage.length; i++) {
         const value = sessionStorage.getItem(`question-${i}`);
         if (!value) {
@@ -58,6 +57,7 @@ export function useSurveySubmit() {
       const navigate = useNavigate();
     const handleSubmit = useCallback(() => {
         if (auth?.session?.access_token) {
+            console.log("user is authorized. fetching history");
             fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
                 method: "POST",
                 headers: {
@@ -84,7 +84,6 @@ export function useSurveySubmit() {
 
 // Retrieves the recommendations based on the survey answers
 export function getRecommendations() {
-    console.log("i am getting recommendations");
     return fetch(`${API_BASE_URL}/api/v1/public/submit-answers`, {
         method: "POST",
         headers: {
@@ -94,6 +93,7 @@ export function getRecommendations() {
     })
         .then((response) => response.json())
         .then((body) => {
+            console.log("4. i got the body, here it is:" + JSON.stringify(body));
             sessionStorage.setItem("recommendations", JSON.stringify(body));
         }
     );
@@ -101,7 +101,6 @@ export function getRecommendations() {
 
 // Returns the questions' id
 export function getQuestions() {
-    console.log("I am getQuestions!");
     return fetch(`${API_BASE_URL}/api/v1/public/questions`)
       .then((res) => res.json())
       .then((data) =>   {

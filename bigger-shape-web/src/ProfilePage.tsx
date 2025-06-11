@@ -25,7 +25,7 @@ const ProfilePage = () => {
   const [resources, setResources] = useState<React.ReactNode[]>([]);
 
   // Value used to determine which submission recommendations to render
-  const [selectedSubmission, setSelectedSubmission] = useState<number>(0);
+  const [selectedSubmission, setSelectedSubmission] = useState<number>(-1);
 
   const [questionIds, setQuestionIds] = useState([]);
 
@@ -54,7 +54,8 @@ const ProfilePage = () => {
   // If not, use the public API for recommendations
   useEffect(() => {
     if (auth?.session?.access_token) {
-      console.log("user is logged in. Fetching user history!");
+      // First, get all previous submissions for this user
+      console.log("1. user is logged in. Fetching user history!");
       fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
         headers: {
           "Content-Type": "application/json",
@@ -62,66 +63,56 @@ const ProfilePage = () => {
         },
       })
         .then((response) => {
+          // Then, convert the response into json
           if (!response.ok) {
             throw new Error("Error retrieving history");
           }
           return response.json();
         })
         .then((body) => {
-          console.log("inputing history and printing the body");
+          if (JSON.stringify(body) === "[]") {
+            // No history
+            return;
+          }
           sessionStorage.setItem("history", JSON.stringify(body));
           console.log(body);
-        })
-        .then(() => {
-          // load history
-          // get the index of the selected answer
-
-          // extract the answers for each question
-          const historyString = sessionStorage.getItem("history");
-          if (historyString) {
-            const historyJSON = JSON.parse(historyString);
-            const answers = historyJSON[selectedSubmission].answers;
-            getQuestions().then((ids) => {
-              setQuestionIds(ids);
-              for (let i = 0; i < ids.length; i++) {
-                sessionStorage.setItem(
-                  `question-${i}`,
-                  JSON.stringify({ questionId: ids[i], answerIndex: 1 })
-                );
-              }
-            });
+          if (selectedSubmission === -1) {
+            return;
           }
+          // extract the answers for each question
+          const answers = body[selectedSubmission].answers;
+          return getQuestions().then((ids) => {
+            setQuestionIds(ids);
+            for (let i = 0; i < ids.length; i++) {
+              sessionStorage.setItem(
+                `question-${i}`,
+                JSON.stringify({
+                  questionId: ids[i],
+                  answerIndex: answers[i].questionOptionOrder,
+                })
+              );
+            }
+            console.log(
+              "2. ok, i'm done putting all the questions from history into storage"
+            );
+          });
         })
         .then(() => {
-          getRecommendations();
+          console.log("3. now let's get the recommendations...");
+          return getRecommendations();
+        })
+        .then(() => {
+          console.log("5. using the recommendations, im loading resources now");
           loadResources();
+          renderSubmissions();
         })
         .catch((error) => {
           console.error("Error:", error);
         });
     } // end user is authorized
-    getRecommendations();
-    loadResources();
+    // getRecommendations();
+    // loadResources();
   }, [auth?.session?.access_token, API_BASE_URL, selectedSubmission]);
-
-  const loadRecommendationsForSubmission = () => {
-    // set recommendations
-    const userHistory = sessionStorage.getItem("history");
-    if (userHistory && !userHistory[selectedSubmission]) {
-      const selectedAnswerSet = JSON.parse(userHistory[selectedSubmission]);
-      // Load all the questions into session storage
-      for (let i = 0; i < selectedAnswerSet.answers.length; i++) {
-        sessionStorage.setItem(`question-${i}`, ``);
-      }
-    }
-
-    getRecommendations();
-  };
-
-  useEffect(() => {
-    loadRecommendationsForSubmission();
-    renderSubmissions();
-  }, [selectedSubmission]);
 
   // Redirects the user to the survey page
   const handleTakeQuestionnaire = () => {
@@ -136,7 +127,7 @@ const ProfilePage = () => {
       // error handling
     } else {
       sessionStorage.clear();
-      localStorage.setItem("uploaded", "false");
+      //   localStorage.setItem("uploaded", "false");
       navigate("/login");
     }
   };
@@ -309,9 +300,12 @@ const ProfilePage = () => {
               fromColor="gray-100"
               toColor="gray-100"
               className="flex flex-col justify-center text-center border border-black
-              hover:shadow-md hover:scale-105 transition-all duration-300"
+              hover:shadow-md hover:scale-105 transition-all duration-300 cursor-pointer"
               key={i}
-              onClick={() => setSelectedSubmission(i)}
+              onClick={() => {
+                setSelectedSubmission(i);
+                setIsHistoryVisible(false);
+              }}
             >
               <p>{`Questionnaire Submission #${i + 1}`}</p>
               <p>{`Date taken: ${new Date(
