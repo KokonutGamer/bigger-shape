@@ -82,6 +82,7 @@ export function useSurveySubmit() {
     return { handleSubmit };
 }
 
+
 // Retrieves the recommendations based on the survey answers
 export function getRecommendations() {
     return fetch(`${API_BASE_URL}/api/v1/public/submit-answers`, {
@@ -95,6 +96,21 @@ export function getRecommendations() {
         .then((body) => {
             console.log("4. i got the body, here it is:" + JSON.stringify(body));
             sessionStorage.setItem("recommendations", JSON.stringify(body));
+            return fetch(`${API_BASE_URL}/api/v1/public/ai/risk-analysis`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: getRecommendationsRequestBody()
+            })
+            .then((secondResponse) => secondResponse.json())
+            .then((secondBody) => {
+                const { message, riskScore } = secondBody;
+                console.log("this is the message: " + message);
+                console.log("this is the riskScore: " + message);
+                sessionStorage.setItem("message", message);
+                sessionStorage.setItem("riskScore", riskScore);
+            })
         }
     );
 }

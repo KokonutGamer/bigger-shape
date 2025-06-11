@@ -366,7 +366,12 @@ const ProfilePage = () => {
             <div className="flex flex-col space-y-4">
               <div className="text-center">
                 <p className="text-xl font-bold">Survey Results</p>
-                <p className="text-lg">Risk Level: 1/10</p>
+                <p className="max-w-md">{`${sessionStorage.getItem(
+                  "message"
+                )}`}</p>
+                <p className="text-lg font-bold">{`Risk Level: ${sessionStorage.getItem(
+                  "riskScore"
+                )}/10`}</p>
               </div>
               {resources}
             </div>

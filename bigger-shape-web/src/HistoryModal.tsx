@@ -1,5 +1,5 @@
 import Modal from "react-bootstrap/Modal";
-import React, { useEffect, type ReactElement } from "react";
+import React, { type ReactElement } from "react";
 import { Button } from "react-bootstrap";
 
 interface HistoryModalProps {
