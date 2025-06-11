@@ -94,7 +94,7 @@ export function getRecommendations() {
     })
         .then((response) => response.json())
         .then((body) => {
-            console.log("4. i got the body, here it is:" + JSON.stringify(body));
+            // console.log("4. i got the body, here it is:" + JSON.stringify(body));
             sessionStorage.setItem("recommendations", JSON.stringify(body));
             return fetch(`${API_BASE_URL}/api/v1/public/ai/risk-analysis`, {
                 method: "POST",
@@ -106,8 +106,6 @@ export function getRecommendations() {
             .then((secondResponse) => secondResponse.json())
             .then((secondBody) => {
                 const { message, riskScore } = secondBody;
-                console.log("this is the message: " + message);
-                console.log("this is the riskScore: " + message);
                 sessionStorage.setItem("message", message);
                 sessionStorage.setItem("riskScore", riskScore);
             })
