@@ -1,7 +1,6 @@
 package bigger.shape.bigger_shape_api.entities;
 
 import io.micrometer.common.lang.NonNull;
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

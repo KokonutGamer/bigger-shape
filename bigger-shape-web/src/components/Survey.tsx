@@ -32,6 +32,10 @@ function Survey() {
   const [selectedAnswer, setSelectedAnswer] = useState<string[]>([]); //user answers
   const [page, setPage] = useState(0);
   const { handleSubmit } = useSurveySubmit();
+  const numberSelected = selectedAnswer.filter((answer) => answer !== "default").length;
+  const allSelected: boolean = (questions && selectedAnswer.every(ans => ans !== "default")) || false;
+
+
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/v1/public/questions`)
@@ -45,18 +49,26 @@ function Survey() {
   }, []);
 
   if (!questions) {
-    return <h1>Loading...</h1>;
-  }
+    return (
+      <>
+        <style>
+          {/*fixing issue from using vite*/}
+          {`
+                #root{
+                  padding: 0;
+                  margin: 0;
+                  // height: 100vh;
+                  }
 
-  function decrePage() {
-    setPage((curPage) => (curPage > 0 ? curPage - 1 : curPage));
-  }
-
-  function increPage() {
-    setPage((curPage) =>
-      questions && curPage < questions.length ? curPage + 1 : curPage
+                  `}
+        </style>
+        <div className="h-[90vh] flex flex-col justify-center">
+          <p className="text-center text-6xl font-bold text-white">Loading Questions...</p>;
+        </div>
+      </>
     );
   }
+
 
   return (
     <>
@@ -64,94 +76,76 @@ function Survey() {
         {/*fixing issue from using vite*/}
         {`
                 #root{
-                  padding: 0;
-                  margin: 0;
+            padding: 0;
+          margin: 0;
+                  // height: 200vh;
+                  
                 }
-                body {
-                    background-image: linear-gradient(to top left, #bfdbfe, #3b82f6);
-                }    
-                `}
+
+                // body {
+            //      background-image: linear-gradient(to top left, #bfdbfe, #3b82f6);
+            // }    
+            `}
       </style>
 
       <div
-        className="w-[90vh] h-[50vh] flex flex-col p-[5vh] bg-gradient-to-br from-blue-200 to-blue-500
+        className="w-[90vh] flex flex-col p-[5vh] bg-gradient-to-br from-blue-200 to-blue-500
             rounded-lg
             text-black
             shadow-md
            justify-center
+           mt-[5vh]
             "
       >
-        <ProgressBar percent={(page / questions.length) * 100} />
-        {page === questions.length ? (
-          <div className="flex items-center justify-center h-[50%]">
-            <h1 className="text-center text-3xl font-bold mb-4 text-white">
-              Survey Completed!
-            </h1>
-          </div>
-        ) : (
-          <div className="flex flex-col justify-center h-[50%]">
+        <ProgressBar percent={(numberSelected / questions.length) * 100} />
+        <div className="flex flex-col justify-center">
+          {questions.map((question, index) => (
             <InputField
-              type={questions[page]["type"]}
-              id={questions[page]["id"]}
-              label={questions[page]["label"]}
-              options={questions[page]["options"]}
-              currentValue={selectedAnswer[page]}
+              key={question.id}
+              type={question.type}
+              id={question.id}
+              label={question.label}
+              options={question.options}
+              currentValue={selectedAnswer[index]}
               setCurrentValue={(value: string) => {
                 setSelectedAnswer((prev) => {
                   const updated = [...prev];
-                  updated[page] = value;
-                  const options = questions[page].options;
-                  // Get the index of the selected dropdown value
+                  updated[index] = value;
+                  const options = question.options;
                   const selectedSupabaseIndex = options.indexOf(value) + 1;
                   const answerData = {
-                    questionId: questions[page]["id"],
+                    questionId: question.id,
                     answerIndex: selectedSupabaseIndex,
                     answerValue: value,
-                    questionOrder: page + 1,
+                    questionOrder: index + 1,
                   };
                   sessionStorage.setItem(
-                    `question-${page}`,
+                    `question-${index}`,
                     JSON.stringify(answerData)
                   );
                   return updated;
                 });
               }}
             />
-          </div>
-        )}
+          ))}
+        </div>
         <div className="flex space-x-4 justify-center mb-4 h-[10%]">
           { /*this message only appears when the user has not selected an option*/}
-          <p className="text-white" hidden={selectedAnswer[page] !== "default"}>
-            Select an option to continue
+          <p className="text-white" hidden={allSelected}>
+            Please Fill Out All Fields To Continue
           </p>
         </div>
 
         <div className="flex space-x-4 justify-center">
           <button
-            onClick={decrePage}
-            className="px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-200 text-white "
-            hidden={page === 0}
-          >
-            Prev
-          </button>
-          <button
-            onClick={increPage}
-            className="px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-200 text-white "
-            hidden={
-              page === questions.length || selectedAnswer[page] === "default"
-            }
-          >
-            Next
-          </button>
-          <button
             onClick={handleSubmit}
             className="px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-200 text-white "
-            hidden={page !== questions.length}
+            hidden={!allSelected}
           >
             Submit
           </button>
         </div>
-      </div>
+      </div >
     </>
   );
 }
