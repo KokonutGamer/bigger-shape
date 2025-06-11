@@ -24,6 +24,8 @@ const ProfilePage = () => {
   // Dynamic list of homeless resources
   const [resources, setResources] = useState<React.ReactNode[]>([]);
 
+  const [resourcesLoading, setResourcesLoading] = useState(false);
+
   // Value used to determine which submission recommendations to render
   const [selectedSubmission, setSelectedSubmission] = useState<number>(-1);
 
@@ -54,6 +56,7 @@ const ProfilePage = () => {
   // If not, use the public API for recommendations
   useEffect(() => {
     if (auth?.session?.access_token) {
+      setResourcesLoading(true);
       // First, get all previous submissions for this user
       console.log("1. user is logged in. Fetching user history!");
       fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
@@ -108,10 +111,15 @@ const ProfilePage = () => {
         })
         .catch((error) => {
           console.error("Error:", error);
+        })
+        .finally(() => {
+          setResourcesLoading(false);
         });
-    } // end user is authorized
-    // getRecommendations();
-    // loadResources();
+    } else {
+      localStorage.setItem("uploaded", "false");
+      getRecommendations();
+      loadResources();
+    }
   }, [auth?.session?.access_token, API_BASE_URL, selectedSubmission]);
 
   // Redirects the user to the survey page
@@ -340,19 +348,28 @@ const ProfilePage = () => {
           height={5}
           fromColor="blue-200"
           toColor="blue-500"
-          className="flex-col justify-evenly overflow-y-auto max-h-96 overscroll-contain flex-grow"
+          className="p-6 overflow-y-auto max-h-96 overscroll-contain flex-grow"
         >
-          {resources.length === 0 ? (
-            <>
-              <p className="font-bold text-lg">No recommendations found</p>
-              <p>Fill out a survey to get recommendations!</p>
-            </>
+          {resourcesLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <p className="font-bold">Loading recommendations...</p>
+            </div>
+          ) : resources.length === 0 ? (
+            <div className="flex flex-col justify-center items-center h-full text-center">
+              <p className="font-bold text-lg">No Survey Selected</p>
+              <p>
+                Click on Get Previous Submissions
+                <br /> to view your recommendations!
+              </p>
+            </div>
           ) : (
-            <>
-              <p className="text-xl font-bold">Survey Results</p>
-              <p className="text-lg">Risk Level: 1/10 </p>
+            <div className="flex flex-col space-y-4">
+              <div className="text-center">
+                <p className="text-xl font-bold">Survey Results</p>
+                <p className="text-lg">Risk Level: 1/10</p>
+              </div>
               {resources}
-            </>
+            </div>
           )}
         </CardContainer>
       </CardContainer>
