@@ -5,17 +5,12 @@ import { useNavigate } from "react-router-dom";
 import HistoryModal from "./HistoryModal";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./AuthContext";
-import {
-  useSurveySubmit,
-  getRecommendations,
-  getQuestions,
-} from "./useSurveySubmit";
+import { getRecommendations, getQuestions } from "./useSurveySubmit";
 
 const ProfilePage = () => {
   // Used to redirect the user to another page
   const navigate = useNavigate();
   const auth = useAuth();
-  const { handleSubmit: handleSurveySubmit } = useSurveySubmit();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // Used to control the visiblity of the previous submissions modal
@@ -75,11 +70,23 @@ const ProfilePage = () => {
     }
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    const processHistory = async () => {
+      setResourcesLoading(true);
+      await loadHistory();
+      const questionsLoaded = await loadQuestions();
+      if (questionsLoaded) {
+        await getRecommendations();
+        loadResources();
+      }
+      setResourcesLoading(false);
+    };
+    processHistory();
+  }, [selectedSubmission]);
 
   // Loads questions into session storage
   // The questions are needed to create the recommendations
-  const loadQuestions = () => {
+  const loadQuestions = async () => {
     console.log("loading questions");
     const body = JSON.parse(sessionStorage.getItem("history"));
     if (!body || body.length === 0) {
