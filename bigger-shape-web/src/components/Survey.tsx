@@ -32,16 +32,16 @@ function Survey() {
   const [selectedAnswer, setSelectedAnswer] = useState<string[]>([]); //user answers
   const [page, setPage] = useState(0);
   const { handleSubmit } = useSurveySubmit();
-  const numberSelected = selectedAnswer.filter((answer) => answer !== "default").length;
-  const allSelected: boolean = (questions && selectedAnswer.every(ans => ans !== "default")) || false;
-
-
+  const numberSelected = selectedAnswer.filter(
+    (answer) => answer !== "default"
+  ).length;
+  const allSelected: boolean =
+    (questions && selectedAnswer.every((ans) => ans !== "default")) || false;
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/v1/public/questions`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("Fetched data:", data); // This should log your JSON object
         setQuestions(data.questions);
         setSelectedAnswer(Array(data.questions.length).fill("default"));
       })
@@ -63,12 +63,14 @@ function Survey() {
                   `}
         </style>
         <div className="h-[90vh] flex flex-col justify-center">
-          <p className="text-center text-6xl font-bold text-white">Loading Questions...</p>;
+          <p className="text-center text-6xl font-bold text-white">
+            Loading Questions...
+          </p>
+          ;
         </div>
       </>
     );
   }
-
 
   return (
     <>
@@ -130,7 +132,7 @@ function Survey() {
           ))}
         </div>
         <div className="flex space-x-4 justify-center mb-4 h-[10%]">
-          { /*this message only appears when the user has not selected an option*/}
+          {/*this message only appears when the user has not selected an option*/}
           <p className="text-white" hidden={allSelected}>
             Please Fill Out All Fields To Continue
           </p>
@@ -145,7 +147,7 @@ function Survey() {
             Submit
           </button>
         </div>
-      </div >
+      </div>
     </>
   );
 }

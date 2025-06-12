@@ -2,48 +2,153 @@ import React, { useEffect, useState } from "react";
 import CardContainer from "./CardContainer";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
-import HistoryModal from "./HistoryModal";
+import HistoryModal from "./components/HistoryModal";
+import SimpleModal from "./components/SimpleModal";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./AuthContext";
-import { useSurveySubmit } from "./useSurveySubmit";
+import {
+  getRecommendations,
+  getQuestions,
+  getRecommendationsRequestBody,
+} from "./useSurveySubmit";
 
 const ProfilePage = () => {
   // Used to redirect the user to another page
   const navigate = useNavigate();
   const auth = useAuth();
-  const { handleSubmit: handleSurveySubmit } = useSurveySubmit();
-
-  useEffect(() => {
-    loadCorrectProfile();
-  }, []);
-
-  useEffect(() => {
-    const isUploaded = localStorage.getItem("uploaded");
-    if (isUploaded === "false" && auth?.session) {
-      handleSurveySubmit();
-      localStorage.setItem("uploaded", "true");
-    }
-  }, [auth?.session, handleSurveySubmit]);
-
-  const numberOfSubmissions = 3;
-  // const [numberOfSubmissions, setNumberOfSubmissions] = useState(3);
-  // Query the questionnaire submissions related to each specific account
-  // Each submission has their own ID, which can be stored as a URL parameter (11.10)
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // Used to control the visiblity of the previous submissions modal
   const [isHistoryVisible, setIsHistoryVisible] = useState(false);
 
+  // Used to control the visiblity of the AI message modal
+  const [isAIMessageVisible, setIsAIMessageVisible] = useState(false);
+
+  // AI message that is displayed when a user views their submission results
+  const [aiMessage, setAiMessage] = useState("");
+
   // Dynamic list of homeless resources
   const [resources, setResources] = useState<React.ReactNode[]>([]);
 
-  // An array of cards that appear on the submissions modal
-  const previousSubmissions = renderSubmissions(numberOfSubmissions);
+  // If true, displays a loading message
+  const [resourcesLoading, setResourcesLoading] = useState(false);
 
+  // Value used to determine which submission recommendations to render
+  const [selectedSubmission, setSelectedSubmission] = useState<number>(0);
+
+  // Changes the tab's title, applies styles, and loads recommendations.
   useEffect(() => {
     document.title = "Dashboard";
     import("bootstrap/dist/css/bootstrap.min.css");
-    loadResources();
   }, []);
+
+  // Renders the page upon landing on the dashboard
+  useEffect(() => {
+    const processHistory = async () => {
+      await loadHistory();
+      loadQuestions();
+      getRecommendations();
+      loadResources();
+      renderSubmissions();
+    };
+    if (auth?.isLoading) {
+      return;
+    }
+    if (!auth?.session) {
+      processHistory();
+      localStorage.setItem("uploaded", "false");
+      return;
+    }
+    loadCorrectProfile();
+    processHistory();
+  }, [auth?.isLoading]);
+
+  // Loads user's history and stores in session storage
+  const loadHistory = async () => {
+    if (auth?.session?.access_token) {
+      // If the user is authorized, GET their history.
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/auth/users/history`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth.session.access_token}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const body = await response.json();
+        sessionStorage.setItem("history", JSON.stringify(body));
+      }
+    }
+  };
+
+  // Main useEffect to load history and get recommendations.
+  useEffect(() => {
+    const processHistory = async () => {
+      setResourcesLoading(true);
+      await loadHistory();
+      const questionsLoaded = await loadQuestions();
+      if (questionsLoaded) {
+        await getRecommendations();
+        loadResources();
+      }
+      setResourcesLoading(false);
+    };
+    processHistory();
+  }, [selectedSubmission]);
+
+  // Used to display an AI-generated description
+  useEffect(() => {
+    handleAiMessage();
+  }, []);
+
+  // Queries the LLM for an evaluation based on recommendations
+  const handleAiMessage = () => {
+    const displayMessage = sessionStorage.getItem("displayMessage");
+    if (displayMessage !== "true") {
+      return;
+    }
+
+    sessionStorage.removeItem("displayMessage"); // Prevent re-runs
+
+    fetch(`${API_BASE_URL}/api/v1/public/ai/risk-analysis`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: getRecommendationsRequestBody(),
+    })
+      .then((res) => res.json())
+      .then((body) => {
+        sessionStorage.setItem("message", body.message);
+        sessionStorage.setItem("riskScore", body.riskScore);
+        setAiMessage(body.message); // Set the message for the modal
+        setIsAIMessageVisible(true); // Show the modal
+      })
+      .catch((err) => console.error("AI analysis fetch failed:", err));
+  };
+
+  // Loads questions into session storage
+  // The questions are needed to create the recommendations
+  const loadQuestions = async () => {
+    const body = JSON.parse(sessionStorage.getItem("history"));
+    if (!body || body.length === 0) {
+      return false;
+    }
+    const answers = body[selectedSubmission].answers;
+    // Retrieve the question ids
+    getQuestions().then((ids) => {
+      for (let i = 0; i < ids.length; i++) {
+        sessionStorage.setItem(
+          `question-${i}`,
+          JSON.stringify({
+            questionId: ids[i],
+            answerIndex: answers[i].questionOptionOrder,
+          })
+        );
+      }
+    });
+    return true;
+  };
 
   // Redirects the user to the survey page
   const handleTakeQuestionnaire = () => {
@@ -58,7 +163,7 @@ const ProfilePage = () => {
       // error handling
     } else {
       sessionStorage.clear();
-      localStorage.setItem("uploaded", "false");
+      //   localStorage.setItem("uploaded", "false");
       navigate("/login");
     }
   };
@@ -154,8 +259,8 @@ const ProfilePage = () => {
   };
 
   // Loads all the recommendation cards from sessionStorage
+  // Used for public recommendations i.e. when the user is not logged in
   const loadResources = () => {
-    setResources([]);
     const recommendationsString = sessionStorage.getItem("recommendations");
     if (!recommendationsString) {
       return;
@@ -186,8 +291,7 @@ const ProfilePage = () => {
               onClick={() => {
                 window.open(recommendations[i].contactUrl, "_blank");
                 return;
-              }
-              }
+              }}
             ></Button>
             <Button
               type="button"
@@ -196,14 +300,59 @@ const ProfilePage = () => {
               onClick={() => {
                 window.open(recommendations[i].websiteUrl, "_blank");
                 return;
-              }
-              }
+              }}
             ></Button>
           </span>
-        </CardContainer >
+        </CardContainer>
       );
     }
     setResources(resourceCards);
+  };
+
+  // Renders the cards that appear when clicking on the "Get Previous Submissions" button
+  const renderSubmissions = () => {
+    const cards = [];
+    let userHistory = sessionStorage.getItem("history");
+    if (!userHistory) {
+      cards.push(
+        <CardContainer
+          width={5}
+          height={5}
+          fromColor="blue-200"
+          toColor="blue-500"
+          className="flex flex-row space-x-4"
+        >
+          <p>No submissions yet!</p>
+        </CardContainer>
+      );
+    } else {
+      userHistory = JSON.parse(userHistory);
+      if (Array.isArray(userHistory)) {
+        for (let i = 0; i < userHistory.length; i++) {
+          cards.push(
+            <CardContainer
+              width={5}
+              height={5}
+              fromColor="gray-100"
+              toColor="gray-100"
+              className="flex flex-col justify-center text-center border border-black
+              hover:shadow-md hover:scale-105 transition-all duration-300 cursor-pointer"
+              key={i}
+              onClick={() => {
+                setSelectedSubmission(i);
+                setIsHistoryVisible(false);
+              }}
+            >
+              <p>{`Questionnaire Submission #${i + 1}`}</p>
+              <p>{`Date taken: ${new Date(
+                userHistory[i].questionnaire.dateTaken
+              ).toLocaleString()}`}</p>
+            </CardContainer>
+          );
+        }
+      }
+    }
+    return cards;
   };
 
   return (
@@ -226,65 +375,48 @@ const ProfilePage = () => {
           height={5}
           fromColor="blue-200"
           toColor="blue-500"
-          className="flex-col justify-evenly overflow-y-auto max-h-96 overscroll-contain flex-grow"
+          className="p-6 overflow-y-auto max-h-96 overscroll-contain flex-grow"
         >
-          {resources.length === 0 ? (
-            <>
-              <p className="font-bold text-lg">No recommendations found</p>
-              <p>Fill out a survey to get recommendations!</p>
-            </>
+          {resourcesLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <p className="font-bold">Loading recommendations...</p>
+            </div>
+          ) : resources.length === 0 ? (
+            <div className="flex flex-col justify-center items-center h-full text-center">
+              <p className="font-bold text-lg">No Survey Selected</p>
+            </div>
           ) : (
-            <>
-              <p className="text-xl font-bold">Survey Results</p>
-              <p className="text-lg">Risk Level: 1/10 </p>
+            <div className="flex flex-col space-y-4">
+              <div className="text-center">
+                <p className="text-xl font-bold">{`Survey Results #${
+                  selectedSubmission + 1
+                }`}</p>
+                {/* <p className="max-w-md">{`${sessionStorage.getItem(
+                  "message"
+                )}`}</p> */}
+                <p className="text-lg font-bold">{`Risk Level: ${
+                  sessionStorage.getItem("riskScore") === null
+                    ? "Loading..."
+                    : sessionStorage.getItem("riskScore")
+                }/10`}</p>
+              </div>
               {resources}
-            </>
+            </div>
           )}
         </CardContainer>
       </CardContainer>
       <HistoryModal
         show={isHistoryVisible}
         hide={hideHistory}
-        submissions={previousSubmissions}
+        submissions={renderSubmissions()}
       ></HistoryModal>
+      <SimpleModal
+        show={isAIMessageVisible}
+        hide={() => setIsAIMessageVisible(false)}
+        message={aiMessage}
+      />
     </>
   );
-};
-
-// This just accepts an integer parameter for now. Later this should
-// probably be changed to accept an array of Ids which correlate
-// to a unique questionnaire submission
-const renderSubmissions = (numberOfSubmissions: number) => {
-  const cards = [];
-  if (numberOfSubmissions === 0) {
-    cards.push(
-      <CardContainer
-        width={5}
-        height={5}
-        fromColor="blue-200"
-        toColor="blue-500"
-        className="flex flex-row space-x-4"
-      >
-        <p>No submissions yet!</p>
-      </CardContainer>
-    );
-  } else {
-    for (let i = 1; i <= numberOfSubmissions; i++) {
-      cards.push(
-        <CardContainer
-          width={5}
-          height={5}
-          fromColor="gray-100"
-          toColor="gray-100"
-          className="flex flex-row space-x-4
-            hover:shadow-md hover:scale-105 transition-all duration-300"
-        >
-          <p>{`Questionnaire Submission #${i}`}</p>
-        </CardContainer>
-      );
-    }
-  }
-  return cards;
 };
 
 export default ProfilePage;
