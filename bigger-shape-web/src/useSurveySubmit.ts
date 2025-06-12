@@ -30,7 +30,7 @@ const getHistoryRequestBody = () => {
 };
 
 // Returns the body of the HTTPRequest for /api/v1/auth/users/history in a JSON format
-const getRecommendationsRequestBody = () => {
+export function getRecommendationsRequestBody() {
     const submissionAnswers: {
         questionId: string;
         answer: number;
@@ -89,20 +89,22 @@ export function getRecommendations() {
     })
         .then((response) => response.json())
         .then((body) => {
+            console.log("asking chatgpt :)");
             sessionStorage.setItem("recommendations", JSON.stringify(body));
-            return fetch(`${API_BASE_URL}/api/v1/public/ai/risk-analysis`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: getRecommendationsRequestBody()
-            })
-            .then((secondResponse) => secondResponse.json())
-            .then((secondBody) => {
-                const { message, riskScore } = secondBody;
-                sessionStorage.setItem("message", message);
-                sessionStorage.setItem("riskScore", riskScore);
-            })
+            // return fetch(`${API_BASE_URL}/api/v1/public/ai/risk-analysis`, {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //     },
+            //     body: getRecommendationsRequestBody()
+            // })
+            // .then((secondResponse) => secondResponse.json())
+            // .then((secondBody) => {
+            //     const { message, riskScore } = secondBody;
+            //     sessionStorage.setItem("message", message);
+            //     sessionStorage.setItem("riskScore", riskScore);
+            // })
+            sessionStorage.setItem("displayMessage", "true");
         }
     );
 }

@@ -2,10 +2,15 @@ import React, { useEffect, useState } from "react";
 import CardContainer from "./CardContainer";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
-import HistoryModal from "./HistoryModal";
+import HistoryModal from "./components/HistoryModal";
+import SimpleModal from "./components/SimpleModal";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./AuthContext";
-import { getRecommendations, getQuestions } from "./useSurveySubmit";
+import {
+  getRecommendations,
+  getQuestions,
+  getRecommendationsRequestBody,
+} from "./useSurveySubmit";
 
 const ProfilePage = () => {
   // Used to redirect the user to another page
@@ -16,9 +21,16 @@ const ProfilePage = () => {
   // Used to control the visiblity of the previous submissions modal
   const [isHistoryVisible, setIsHistoryVisible] = useState(false);
 
+  // Used to control the visiblity of the AI message modal
+  const [isAIMessageVisible, setIsAIMessageVisible] = useState(false);
+
+  // AI message that is displayed when a user views their submission results
+  const [aiMessage, setAiMessage] = useState("");
+
   // Dynamic list of homeless resources
   const [resources, setResources] = useState<React.ReactNode[]>([]);
 
+  // If true, displays a loading message
   const [resourcesLoading, setResourcesLoading] = useState(false);
 
   // Value used to determine which submission recommendations to render
@@ -71,6 +83,7 @@ const ProfilePage = () => {
     }
   };
 
+  // Main useEffect to load history and get recommendations.
   useEffect(() => {
     const processHistory = async () => {
       setResourcesLoading(true);
@@ -85,15 +98,42 @@ const ProfilePage = () => {
     processHistory();
   }, [selectedSubmission]);
 
+  // Used to display an AI-generated description
+  useEffect(() => {
+    handleAiMessage();
+  }, []);
+
+  // Queries the LLM for an evaluation based on recommendations
+  const handleAiMessage = () => {
+    const displayMessage = sessionStorage.getItem("displayMessage");
+    if (displayMessage !== "true") {
+      return;
+    }
+
+    sessionStorage.removeItem("displayMessage"); // Prevent re-runs
+
+    fetch(`${API_BASE_URL}/api/v1/public/ai/risk-analysis`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: getRecommendationsRequestBody(),
+    })
+      .then((res) => res.json())
+      .then((body) => {
+        sessionStorage.setItem("message", body.message);
+        sessionStorage.setItem("riskScore", body.riskScore);
+        setAiMessage(body.message); // Set the message for the modal
+        setIsAIMessageVisible(true); // Show the modal
+      })
+      .catch((err) => console.error("AI analysis fetch failed:", err));
+  };
+
   // Loads questions into session storage
   // The questions are needed to create the recommendations
   const loadQuestions = async () => {
-    console.log("loading questions");
     const body = JSON.parse(sessionStorage.getItem("history"));
     if (!body || body.length === 0) {
       return false;
     }
-    console.log(body);
     const answers = body[selectedSubmission].answers;
     // Retrieve the question ids
     getQuestions().then((ids) => {
@@ -351,12 +391,14 @@ const ProfilePage = () => {
                 <p className="text-xl font-bold">{`Survey Results #${
                   selectedSubmission + 1
                 }`}</p>
-                <p className="max-w-md">{`${sessionStorage.getItem(
+                {/* <p className="max-w-md">{`${sessionStorage.getItem(
                   "message"
-                )}`}</p>
-                <p className="text-lg font-bold">{`Risk Level: ${sessionStorage.getItem(
-                  "riskScore"
-                )}/10`}</p>
+                )}`}</p> */}
+                <p className="text-lg font-bold">{`Risk Level: ${
+                  sessionStorage.getItem("riskScore") === null
+                    ? "Loading..."
+                    : sessionStorage.getItem("riskScore")
+                }/10`}</p>
               </div>
               {resources}
             </div>
@@ -368,6 +410,11 @@ const ProfilePage = () => {
         hide={hideHistory}
         submissions={renderSubmissions()}
       ></HistoryModal>
+      <SimpleModal
+        show={isAIMessageVisible}
+        hide={() => setIsAIMessageVisible(false)}
+        message={aiMessage}
+      />
     </>
   );
 };
