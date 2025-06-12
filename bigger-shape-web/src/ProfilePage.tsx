@@ -24,29 +24,30 @@ const ProfilePage = () => {
   // Value used to determine which submission recommendations to render
   const [selectedSubmission, setSelectedSubmission] = useState<number>(0);
 
-  const [questionIds, setQuestionIds] = useState([]);
-
   // Changes the tab's title, applies styles, and loads recommendations.
   useEffect(() => {
     document.title = "Dashboard";
     import("bootstrap/dist/css/bootstrap.min.css");
   }, []);
 
+  // Renders the page upon landing on the dashboard
   useEffect(() => {
-    if (!auth?.session || auth?.isLoading) {
-      return;
-    }
-    console.log("i am triggered!");
-    loadCorrectProfile();
     const processHistory = async () => {
       await loadHistory();
-      const questionsLoaded = loadQuestions();
-      if (questionsLoaded) {
-        getRecommendations();
-        loadResources();
-        renderSubmissions();
-      }
+      loadQuestions();
+      getRecommendations();
+      loadResources();
+      renderSubmissions();
     };
+    if (auth?.isLoading) {
+      return;
+    }
+    if (!auth?.session) {
+      processHistory();
+      localStorage.setItem("uploaded", "false");
+      return;
+    }
+    loadCorrectProfile();
     processHistory();
   }, [auth?.isLoading]);
 
@@ -108,86 +109,6 @@ const ProfilePage = () => {
     });
     return true;
   };
-
-  // Pushes survey answers to the database if the survey answers have not yet been
-  // pushed. This may occur if the user logs in after completing the survey
-  //   useEffect(() => {
-  //     const isUploaded = localStorage.getItem("uploaded");
-  //     if (isUploaded === "false" && auth?.session) {
-  //       handleSurveySubmit();
-  //       localStorage.setItem("uploaded", "true");
-  //     }
-  //   }, [auth?.session, handleSurveySubmit]);
-
-  //   // Gets the user's history if the user is logged in
-  //   // If not, use the public API for recommendations
-  //   useEffect(() => {
-  //     if (auth?.session?.access_token) {
-  //       setResourcesLoading(true);
-  //       // First, get all previous submissions for this user
-  //       console.log("1. user is logged in. Fetching user history!");
-  //       fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${auth.session.access_token}`,
-  //         },
-  //       })
-  //         .then((response) => {
-  //           // Then, convert the response into json
-  //           if (!response.ok) {
-  //             throw new Error("Error retrieving history");
-  //           }
-  //           return response.json();
-  //         })
-  //         .then((body) => {
-  //           if (JSON.stringify(body) === "[]") {
-  //             // No history
-  //             return;
-  //           }
-  //           sessionStorage.setItem("history", JSON.stringify(body));
-  //           console.log(body);
-  //           if (selectedSubmission === -1) {
-  //             return;
-  //           }
-  //           // extract the answers for each question
-  //           const answers = body[selectedSubmission].answers;
-  //           return getQuestions().then((ids) => {
-  //             setQuestionIds(ids);
-  //             for (let i = 0; i < ids.length; i++) {
-  //               sessionStorage.setItem(
-  //                 `question-${i}`,
-  //                 JSON.stringify({
-  //                   questionId: ids[i],
-  //                   answerIndex: answers[i].questionOptionOrder,
-  //                 })
-  //               );
-  //             }
-  //             console.log(
-  //               "2. ok, i'm done putting all the questions from history into storage"
-  //             );
-  //           });
-  //         })
-  //         .then(() => {
-  //           console.log("3. now let's get the recommendations...");
-  //           return getRecommendations();
-  //         })
-  //         .then(() => {
-  //           console.log("5. using the recommendations, im loading resources now");
-  //           loadResources();
-  //           renderSubmissions();
-  //         })
-  //         .catch((error) => {
-  //           console.error("Error:", error);
-  //         })
-  //         .finally(() => {
-  //           setResourcesLoading(false);
-  //         });
-  //     } else {
-  //       localStorage.setItem("uploaded", "false");
-  //       getRecommendations();
-  //       loadResources();
-  //     }
-  //   }, [auth?.session?.access_token, API_BASE_URL, selectedSubmission]);
 
   // Redirects the user to the survey page
   const handleTakeQuestionnaire = () => {
@@ -385,8 +306,7 @@ const ProfilePage = () => {
               <p>{`Questionnaire Submission #${i + 1}`}</p>
               <p>{`Date taken: ${new Date(
                 userHistory[i].questionnaire.dateTaken
-              ).toLocaleDateString()}`}</p>
-              <p>{`Risk score: ${userHistory[i].questionnaire.riskScore}/10`}</p>
+              ).toLocaleString()}`}</p>
             </CardContainer>
           );
         }
@@ -424,15 +344,13 @@ const ProfilePage = () => {
           ) : resources.length === 0 ? (
             <div className="flex flex-col justify-center items-center h-full text-center">
               <p className="font-bold text-lg">No Survey Selected</p>
-              <p>
-                Click on Get Previous Submissions
-                <br /> to view your recommendations!
-              </p>
             </div>
           ) : (
             <div className="flex flex-col space-y-4">
               <div className="text-center">
-                <p className="text-xl font-bold">Survey Results</p>
+                <p className="text-xl font-bold">{`Survey Results #${
+                  selectedSubmission + 1
+                }`}</p>
                 <p className="max-w-md">{`${sessionStorage.getItem(
                   "message"
                 )}`}</p>

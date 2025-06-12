@@ -23,7 +23,7 @@ const getHistoryRequestBody = () => {
     return JSON.stringify({
         questionnaire: {
             dateTaken: new Date().toISOString(),
-            riskScore: 5,
+            riskScore: sessionStorage.getItem("riskScore"),
         },
         answers: submissionAnswers,
     });
@@ -57,7 +57,6 @@ export function useSurveySubmit() {
       const navigate = useNavigate();
     const handleSubmit = useCallback(() => {
         if (auth?.session?.access_token) {
-            console.log("user is authorized. fetching history");
             fetch(`${API_BASE_URL}/api/v1/auth/users/history`, {
                 method: "POST",
                 headers: {
@@ -66,10 +65,6 @@ export function useSurveySubmit() {
                 },
                 body: getHistoryRequestBody(),
             })
-                .then(() => {
-                    // prevents duplicate submissions
-                    localStorage.setItem("uploaded", "true");
-                })
                 .catch((error) => {
                     throw new Error(error);
                 }
@@ -94,7 +89,6 @@ export function getRecommendations() {
     })
         .then((response) => response.json())
         .then((body) => {
-            // console.log("4. i got the body, here it is:" + JSON.stringify(body));
             sessionStorage.setItem("recommendations", JSON.stringify(body));
             return fetch(`${API_BASE_URL}/api/v1/public/ai/risk-analysis`, {
                 method: "POST",
